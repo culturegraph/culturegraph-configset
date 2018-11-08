@@ -11,7 +11,7 @@
         <!-- Includes literals from the previous metamorph xml -->
 
         <data name="id" source="idn">
-           <setreplace>
+            <setreplace>
                 <entry name="DE-576" value="BSZ"/>
                 <entry name="DE-604" value="BVB"/>
                 <entry name="DE-101" value="DNB"/>
@@ -24,9 +24,9 @@
         </data>
 
         <data name="@catalog" source="idn">
-           <regexp match="^\((.+)\)" format="${1}"/>
+            <regexp match="^\((.+)\)" format="${1}"/>
         </data>
-        
+
         <data name="isil" source="@catalog"/>
 
         <data name="vendor" source="@catalog">
@@ -42,13 +42,13 @@
             </setreplace>
         </data>
 
-		<data name="deleted" source="status">
-			<whitelist>
-				<entry name="d"/>
-			</whitelist>
-			<!-- true -->
-			<constant value="t"/>
-		</data>
+        <data name="deleted" source="status">
+            <whitelist>
+                <entry name="d"/>
+            </whitelist>
+            <!-- true -->
+            <constant value="t"/>
+        </data>
 
         <data name="title" source="mainTitle"/>
         <data name="title" source="varyinFormMainTitle"/>
@@ -62,7 +62,7 @@
         <data name="subject" source="subject.tag"/>
         <data name="sachgruppe" source="sachgruppe.name"/>
         <data name="material" source="material"/>
-        
+
         <data name="gnd" source="creator.ref"/>
         <data name="gnd" source="creatorAddedEntry.ref"/>
         <data name="gnd" source="creatorCorporateBody.ref"/>
