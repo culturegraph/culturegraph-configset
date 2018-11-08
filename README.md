@@ -44,11 +44,11 @@ Add a */dataimport* request handler to `solrconfig.xml` (Location: `configsets/c
 ```
 
 ```
-  <requestHandler name="/dataimport" class="solr.DataImportHandler">
-    <lst name="defaults">
-      <str name="config">solr-data-config.xml</str>
-    </lst>
-  </requestHandler>
+<requestHandler name="/dataimport" class="solr.DataImportHandler">
+  <lst name="defaults">
+    <str name="config">solr-data-config.xml</str>
+  </lst>
+</requestHandler>
 ```
 
 ### Install Add-ons
