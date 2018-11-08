@@ -12,13 +12,13 @@
 
         <data name="id" source="idn">
             <setreplace>
-                <entry name="DE-576" value="BSZ"/>
-                <entry name="DE-604" value="BVB"/>
-                <entry name="DE-101" value="DNB"/>
-                <entry name="DE-601" value="GBV"/>
-                <entry name="DE-605" value="HBZ"/>
-                <entry name="DE-603" value="HEB"/>
                 <entry name="AT-OBV" value="OBV"/>
+                <entry name="DE-101" value="DNB"/>
+                <entry name="DE-576" value="BSZ"/>
+                <entry name="DE-601" value="GBV"/>
+                <entry name="DE-603" value="HEB"/>
+                <entry name="DE-604" value="BVB"/>
+                <entry name="DE-605" value="HBZ"/>
                 <entry name="Uk" value="BNB"/>
             </setreplace>
         </data>
@@ -31,13 +31,13 @@
 
         <data name="vendor" source="@catalog">
             <setreplace>
-                <entry name="DE-576" value="BSZ"/>
-                <entry name="DE-604" value="BVB"/>
-                <entry name="DE-101" value="DNB"/>
-                <entry name="DE-601" value="GBV"/>
-                <entry name="DE-605" value="HBZ"/>
-                <entry name="DE-603" value="HEB"/>
                 <entry name="AT-OBV" value="OBV"/>
+                <entry name="DE-101" value="DNB"/>
+                <entry name="DE-576" value="BSZ"/>
+                <entry name="DE-601" value="GBV"/>
+                <entry name="DE-603" value="HEB"/>
+                <entry name="DE-604" value="BVB"/>
+                <entry name="DE-605" value="HBZ"/>
                 <entry name="Uk" value="BNB"/>
             </setreplace>
         </data>
