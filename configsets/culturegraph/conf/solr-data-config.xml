@@ -1,0 +1,95 @@
+
+<dataConfig>
+    <dataSource type="BinFileDataSource"/>
+    <document>
+        <!-- MARC from JDBC Data Source Database -->
+        <!-- TODO implement -->
+
+        <!-- MARC-XML Records from FileSystem -->
+        <entity name="marcxmlfs"
+                processor="FileListEntityProcessor"
+                fileName=".+\.xml(.gz)?$"
+                recursive="true"
+                rootEntity="false"
+                dataSource="null"
+                baseDir="/CHANGE/ME">
+
+            <entity name="morph"
+                    processor="org.culturegraph.solr.handler.dataimport.MetamorphEntityProcessor"
+                    transformer="org.culturegraph.solr.dataimport.handler.HashCodeTransformer,org.culturegraph.solr.dataimport.handler.SymmetricMetamorphTransformer"
+                    url="${marcxmlfs.fileAbsolutePath}"
+                    inputFormat="marcxml"
+                    morphDef="ingestMarc21.xml,wrk.xml"
+                    includeFullRecord="true"
+                    onError="skip">
+                <field column="id" name="id"/>
+
+                <field column="creator" name="creator"/>
+                <field column="gnd" name="gnd"/>
+                <field column="isil" name="isil"/>
+                <field column="issued" name="issued"/>
+                <field column="remainder" name="remainder"/>
+                <field column="sachgruppe" name="sachgruppe"/>
+                <field column="subject" name="subject"/>
+                <field column="title" name="title"/>
+                <field column="vendor" name="vendor"/>
+
+                <!-- wrk.xml keys -->
+                <field column="isbnVolumeTitle" name="keys"/>
+                <field column="titleCorporateBodyCreator" name="keys"/>
+                <field column="titleCreator" name="keys"/>
+                <field column="titleCreatorMeeting" name="keys"/>
+                <field column="uniformTitleCorporateBodyCreator" name="keys"/>
+                <field column="uniformTitleCreator" name="keys"/>
+                <field column="uniformTitleCreatorMeeting" name="keys"/>
+                
+                <!-- marc21 record -->
+                <field column="fullRecord" name="record" format="marc21" morphDef="excerpt.xml" />
+            </entity>
+        </entity>
+
+        <!-- MARC21 Records from FileSystem -->
+        <entity name="marcfs"
+                processor="FileListEntityProcessor"
+                fileName=".+\.(mrc|marc21)(.gz)?$"
+                recursive="true"
+                rootEntity="false"
+                dataSource="null"
+                baseDir="/CHANGE/ME">
+
+            <entity name="morph"
+                    processor="org.culturegraph.solr.handler.dataimport.MetamorphEntityProcessor"
+                    transformer="org.culturegraph.solr.dataimport.handler.HashCodeTransformer,org.culturegraph.solr.dataimport.handler.SymmetricMetamorphTransformer"
+                    url="${marcfs.fileAbsolutePath}"
+                    inputFormat="marc21"
+                    morphDef="ingestMarc21.xml,wrk.xml"
+                    includeFullRecord="true"
+                    onError="skip">
+                <field column="id" name="id"/>
+
+                <field column="creator" name="creator"/>
+                <field column="gnd" name="gnd"/>
+                <field column="isil" name="isil"/>
+                <field column="issued" name="issued"/>
+                <field column="remainder" name="remainder"/>
+                <field column="sachgruppe" name="sachgruppe"/>
+                <field column="subject" name="subject"/>
+                <field column="title" name="title"/>
+                <field column="vendor" name="vendor"/>
+
+                <!-- wrk.xml keys -->
+                <field column="isbnVolumeTitle" name="keys"/>
+                <field column="titleCorporateBodyCreator" name="keys"/>
+                <field column="titleCreator" name="keys"/>
+                <field column="titleCreatorMeeting" name="keys"/>
+                <field column="uniformTitleCorporateBodyCreator" name="keys"/>
+                <field column="uniformTitleCreator" name="keys"/>
+                <field column="uniformTitleCreatorMeeting" name="keys"/>
+                
+                <!-- marc21 record -->
+                <field column="fullRecord" name="record" format="marc21" morphDef="excerpt.xml" />
+            </entity>
+        </entity>
+
+    </document>
+</dataConfig>

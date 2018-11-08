@@ -1,0 +1,627 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metamorph xmlns="http://www.culturegraph.org/metamorph" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1">
+    <meta>
+        <name>WRK Algorithmus</name>
+    </meta>
+
+    <rules>
+
+        <!-- include start -->
+        <!-- Includes literals from the previous metamorph xml -->
+
+        <data name="id" source="idn">
+           <setreplace>
+                <entry name="DE-576" value="BSZ"/>
+                <entry name="DE-604" value="BVB"/>
+                <entry name="DE-101" value="DNB"/>
+                <entry name="DE-601" value="GBV"/>
+                <entry name="DE-605" value="HBZ"/>
+                <entry name="DE-603" value="HEB"/>
+                <entry name="AT-OBV" value="OBV"/>
+                <entry name="Uk" value="BNB"/>
+            </setreplace>
+        </data>
+
+        <data name="@catalog" source="idn">
+           <regexp match="^\((.+)\)" format="${1}"/>
+        </data>
+        
+        <data name="isil" source="@catalog"/>
+
+        <data name="vendor" source="@catalog">
+            <setreplace>
+                <entry name="DE-576" value="BSZ"/>
+                <entry name="DE-604" value="BVB"/>
+                <entry name="DE-101" value="DNB"/>
+                <entry name="DE-601" value="GBV"/>
+                <entry name="DE-605" value="HBZ"/>
+                <entry name="DE-603" value="HEB"/>
+                <entry name="AT-OBV" value="OBV"/>
+                <entry name="Uk" value="BNB"/>
+            </setreplace>
+        </data>
+
+		<data name="deleted" source="status">
+			<whitelist>
+				<entry name="d"/>
+			</whitelist>
+			<!-- true -->
+			<constant value="t"/>
+		</data>
+
+        <data name="title" source="mainTitle"/>
+        <data name="title" source="varyinFormMainTitle"/>
+        <data name="remainder" source="remainderOfTitle"/>
+        <data name="remainder" source="varyingFormRemainderOfTitle"/>
+        <data source="issued">
+            <regexp match="\d\d\d\d"/>
+        </data>
+        <data name="creator" source="creator.name|creatorAddedEntry.name|creatorCorporateBody.name|creatorCorporateBodyAddedEntry.name|creatorMeeting.name|creatorMeetingAddedEntry.name"/>
+        <data name="subject" source="subject.name"/>
+        <data name="subject" source="subject.tag"/>
+        <data name="sachgruppe" source="sachgruppe.name"/>
+        <data name="material" source="material"/>
+        
+        <data name="gnd" source="creator.ref"/>
+        <data name="gnd" source="creatorAddedEntry.ref"/>
+        <data name="gnd" source="creatorCorporateBody.ref"/>
+        <data name="gnd" source="creatorCorporateBodyAddedEntry.ref"/>
+        <data name="gnd" source="creatorMeeting.ref"/>
+        <data name="gnd" source="creatorMeetingAddedEntry.ref"/>
+        <data name="gnd" source="subject.ref"/>
+
+        <!-- possible additions: -->
+        <!--
+        <data source="publisher"/>
+        <data source="publicationPlace"/>
+        <data source="material"/>
+        <data source="country"/>
+        <data source="originalLanguage"/>
+        <data source="language"/>
+        <data source="isbn13"/>
+        <data source="gtin14"/>
+        <data source="eki"/>
+        <data source="dnb"/>
+        <data source="oclc"/>
+        <data source="ismn"/>
+        <data source="doi"/>
+        <data source="rvk"/>
+        <data source="ddc"/>
+        -->
+        <!-- include end -->
+
+        <group>
+            <data source="idn"/>
+            <postprocess>
+                <occurrence only="1"/>
+            </postprocess>
+        </group>
+
+
+        <data name="@year" source="issued">
+            <regexp match="\d\d\d\d"/>
+        </data>
+
+
+        <choose name="@volume">
+            <data source="volume">
+                <regexp match="\d+"/>
+            </data>
+            <data source="_id">
+                <constant value="X"/>
+            </data>
+        </choose>
+
+        <choose name="@publicationType">
+            <combine name="" value="${isbn}">
+                <if>
+                    <data source="remainderOfTitle">
+                        <regexp match="Hoerspiel(.*)"/>
+                    </data>
+                </if>
+                <data source="isbn13" name="isbn"/>
+            </combine>
+            <combine name="" value="${isbn}">
+                <if>
+                    <data source="publicationType">
+                        <equals string="s"/>
+                    </data>
+                </if>
+                <data source="isbn13" name="isbn"/>
+            </combine>
+            <combine name="" value="${idn}">
+                <if>
+                    <data source="publicationType">
+                        <equals string="s"/>
+                    </data>
+                </if>
+                <data name="idn" source="_id"/>
+            </combine>
+            <combine name="" value="${idn}">
+                <if>
+                    <data source="publicationType">
+                        <equals string="v"/>
+                    </data>
+                </if>
+                <data name="idn" source="_id"/>
+            </combine>
+            <combine name="" value="${idn}">
+                <if>
+                    <data source="publicationType">
+                        <equals string="m"/>
+                    </data>
+                </if>
+                <data name="idn" source="_id"/>
+            </combine>
+            <data source="_id">
+                <constant value="X"/>
+            </data>
+        </choose>
+
+
+        <combine name="isbnVolumeTitle" value="${isbn}-I-${volume}-${title}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <data name="volume" source="@volume"/>
+            <data name="isbn" source="isbn13"/>
+            <combine name="title" value="${title}" flushWith="record">
+                <data name="title" source="mainTitle"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <replace pattern="\s?bis\s?" with="-"/>
+                    <substring end="50"/>
+                </postprocess>
+            </combine>
+        </combine>
+
+
+        <combine name="titleCreator" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+
+            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+                <data name="title" source="mainTitle"/>
+                <data name="remainderOfTitle" source="remainderOfTitle"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <replace pattern="\s?bis\s?" with="-"/>
+                    <substring end="80"/>
+                </postprocess>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="publicationType" source="@publicationType"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creator.rel">
+                    <blacklist>
+                        <entry name="pbl"/>
+                        <entry name="prn"/>
+                        <entry name="mfp"/>
+                        <entry name="pma"/>
+                    </blacklist>
+                </data>
+
+                <combine name="creator" value="${name}" reset="false">
+                    <data source="creator.name" name="name">
+                        <regexp match="^([\p{L}\p{M}\-]*)(, ([\p{L}\p{M}.]*)( .*)?)?$" format="${1}${3}"/>
+                        <occurrence only="lessThan 4"/>
+                    </data>
+                </combine>
+
+                <postprocess>
+                    <buffer/>
+                    <setreplace map="namer"/>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                </postprocess>
+
+            </combine>
+        </combine>
+
+
+        <combine name="uniformTitleCreator" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <combine name="title" value="${title}" flushWith="record">
+                <data name="title" source="uniformTitle"/>
+
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <replace pattern="\s?bis\s?" with="-"/>
+                    <substring end="80"/>
+                </postprocess>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="publicationType" source="@publicationType"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creator.rel">
+                    <blacklist>
+                        <entry name="pbl"/>
+                        <entry name="prn"/>
+                        <entry name="mfp"/>
+                        <entry name="pma"/>
+                    </blacklist>
+                </data>
+                <combine name="creator" value="${name}">
+
+                    <data source="creator.name" name="name">
+                        <regexp match="^([\p{L}\p{M}\-]*)(, ([\p{L}\p{M}.]*)( .*)?)?$" format="${1}${3}"/>
+                        <occurrence only="lessThan 4"/>
+                    </data>
+                </combine>
+                <postprocess>
+                    <buffer/>
+                    <setreplace map="namer"/>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                </postprocess>
+            </combine>
+        </combine>
+
+        <combine name="titleCorporateBodyCreator" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+                <data name="title" source="mainTitle"/>
+                <data name="remainderOfTitle" source="remainderOfTitle"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <replace pattern="\s?bis\s?" with="-"/>
+                    <substring end="80"/>
+                </postprocess>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="publicationType" source="@publicationType"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorCorporateBody.rel">
+                    <blacklist>
+                        <entry name="pbl"/>
+                        <entry name="prn"/>
+                        <entry name="mfp"/>
+                        <entry name="pma"/>
+                    </blacklist>
+                </data>
+                <data name="creator" source="creatorCorporateBody.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+
+                </postprocess>
+            </combine>
+        </combine>
+
+
+        <combine name="uniformTitleCorporateBodyCreator" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <combine name="title" value="${title}" flushWith="record">
+                <data name="title" source="uniformTitle"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <replace pattern="\s?bis\s?" with="-"/>
+                    <substring end="80"/>
+                </postprocess>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="publicationType" source="@publicationType"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorCorporateBody.rel">
+                    <blacklist>
+                        <entry name="pbl"/>
+                        <entry name="prn"/>
+                        <entry name="mfp"/>
+                        <entry name="pma"/>
+                    </blacklist>
+                </data>
+                <data name="creator" source="creatorCorporateBody.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+
+                </postprocess>
+            </combine>
+        </combine>
+
+        <combine name="titleCreatorMeeting" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+                <data name="title" source="mainTitle"/>
+                <data name="remainderOfTitle" source="remainderOfTitle"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <replace pattern="\s?bis\s?" with="-"/>
+                    <substring end="80"/>
+                </postprocess>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="publicationType" source="@publicationType"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorMeeting.rel">
+                    <blacklist>
+                        <entry name="pbl"/>
+                        <entry name="prn"/>
+                        <entry name="mfp"/>
+                        <entry name="pma"/>
+                    </blacklist>
+                </data>
+                <data name="creator" source="creatorMeeting.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+
+                </postprocess>
+            </combine>
+        </combine>
+
+
+        <combine name="uniformTitleCreatorMeeting" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <combine name="title" value="${title}" flushWith="record">
+                <data name="title" source="uniformTitle"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <replace pattern="\s?bis\s?" with="-"/>
+                    <substring end="50"/>
+                </postprocess>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="publicationType" source="@publicationType" />
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorMeeting.rel">
+                    <blacklist>
+                        <entry name="pbl"/>
+                        <entry name="prn"/>
+                        <entry name="mfp"/>
+                        <entry name="pma"/>
+                    </blacklist>
+                </data>
+                <data name="creator" source="creatorMeeting.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+
+                </postprocess>
+            </combine>
+        </combine>
+
+    </rules>
+    <maps>
+        <map name="namer">
+            <entry name=" Mc" value="Mac"/>
+        </map>
+        <map name="numberLiteral">
+            <entry name=" eins " value="1"/>
+            <entry name=" zwei " value="2"/>
+            <entry name=" drei " value="3"/>
+            <entry name=" vier " value="4"/>
+            <entry name=" fuenf " value="5"/>
+            <entry name=" sechs " value="6"/>
+            <entry name=" sieben " value="7"/>
+            <entry name=" acht " value="8"/>
+            <entry name=" neun " value="9"/>
+            <entry name=" zehn " value="10"/>
+            <entry name=" elf " value="11"/>
+            <entry name=" zwoelf " value="12"/>
+            <entry name=" zwanzig " value="20"/>
+            <entry name=" dreissig " value="30"/>
+            <entry name=" vierzig " value="40"/>
+            <entry name=" fuenfzig " value="50"/>
+            <entry name=" fuenfundsiebzig " value="75"/>
+            <entry name=" hundert " value="100"/>
+            <entry name=" hundertfuenfzig " value="150"/>
+            <entry name=" zweihundert " value="200"/>
+            <entry name=" zweihundertfuenfzig " value="250"/>
+            <entry name=" fuenfhundert " value="500"/>
+            <entry name=" erster " value="1."/>
+            <entry name=" erstes " value="1."/>
+            <entry name=" erste " value="1."/>
+            <entry name=" zweiter " value="2."/>
+            <entry name=" zweites " value="2."/>
+            <entry name=" zweite " value="2."/>
+            <entry name=" dritter " value="3."/>
+            <entry name=" drittes " value="3."/>
+            <entry name=" dritte " value="3."/>
+            <entry name=" vierter " value="4."/>
+            <entry name=" fuenfter " value="5."/>
+            <entry name=" sechster " value="6."/>
+            <entry name=" siebter " value="7."/>
+            <entry name=" achter " value="8."/>
+            <entry name=" neunter " value="9."/>
+            <entry name=" zehnter " value="10."/>
+            <entry name=" elfter " value="11."/>
+            <entry name=" zwoelfter " value="12."/>
+            <entry name=" the " value=" "/>
+        </map>
+        <map name="diac">
+            <entry name="ä" value="ae"/>
+            <entry name="ü" value="ue"/>
+            <entry name="ö" value="oe"/>
+            <entry name="ß" value="ss"/>
+            <entry name="é" value="e"/>
+            <entry name="á" value="a"/>
+            <entry name="ë" value="e"/>
+            <entry name="ï" value="i"/>
+            <entry name="à" value="a"/>
+            <entry name="è" value="e"/>
+            <entry name="â" value="a"/>
+            <entry name="ê" value="e"/>
+            <entry name="å" value="a"/>
+            <entry name="æ" value="ae"/>
+            <entry name="ç" value="c"/>
+            <entry name="œ" value="oe"/>
+            <entry name="ñ" value="n"/>
+            <entry name="š" value="s"/>
+            <entry name="&amp;" value="u"/>
+            <entry name=" und " value="u"/>
+            <entry name=" + " value="u"/>
+        </map>
+    </maps>
+</metamorph>

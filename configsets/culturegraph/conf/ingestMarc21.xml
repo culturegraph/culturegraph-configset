@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metamorph xmlns="http://www.culturegraph.org/metamorph" version="1">
+    <rules>
+        <data name="_id" source="001"/>
+
+        <data name="type" source="_id">
+            <constant value="bib"/>
+        </data>
+
+		<data name="status" source="leader.status"/>
+
+        <!--
+        GVI Identifier Schema
+        See also: https://github.com/gemeinsamerverbuendeindex/gvi/blob/master/solrmarc/index_java/src/org/gvi/solrmarc/index/GVIIndexer.java#L555     
+         -->
+        <combine name="idn" value="(${catalog})${id}">
+            <data source="001" name="id"/>
+            <!-- vendor: the code of the organisation that provided the record -->
+            <choose name="catalog">
+                <!-- MARC code for the organization whose control number is contained in field 001 -->
+                <data source="003">
+                    <regexp match="(.{1,6})" format="${1}"/>
+                    <occurrence only="1"/>
+                </data>
+                <data source="040  .a">
+                    <occurrence only="1"/>
+                </data>
+                <data source="001">
+                    <regexp match="^BV" format="DE-604"/>
+                </data>
+                <data source="001">
+                    <constant value="UNDEFINED"/>
+                </data>
+            </choose>
+        </combine>
+
+
+        <data name="multipartLevel" source="leader.multipartLevel">
+            <lookup default="undef">
+                <entry name=" " value="single"/>
+                <entry name="a" value="set"/>
+                <entry name="b" value="part-ind"/>
+                <entry name="c" value="part-dep"/>
+            </lookup>
+        </data>
+
+        <!-- publicationType -->
+        <data name="@categoryOfMaterial" source="007">
+            <substring start="0" end="1"/>
+        </data>
+
+        <data name="publicationType" source="@categoryOfMaterial"/>
+
+        <!-- material -->
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="e"/>
+                <entry name="f"/>
+            </whitelist>
+            <constant value="map"/>
+        </data>
+
+        <!-- material -->
+        <combine name="@mat" value="book">
+            <data source="leader.type">
+                <whitelist>
+                    <entry name="a"/>
+                    <entry name="t"/>
+                </whitelist>
+            </data>
+            <data source="leader.bibliographicLevel">
+                <whitelist>
+                    <entry name="a"/>
+                    <entry name="c"/>
+                    <entry name="d"/>
+                    <entry name="m"/>
+                </whitelist>
+            </data>
+        </combine>
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="j"/>
+            </whitelist>
+            <constant value="musicSound"/>
+        </data>
+
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="c"/>
+                <entry name="d"/>
+            </whitelist>
+            <constant value="musicNotated"/>
+        </data>
+
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="i"/>
+            </whitelist>
+            <constant value="nonmusicSound"/>
+        </data>
+
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="o"/>
+                <entry name="p"/>
+            </whitelist>
+            <constant value="kit"/>
+        </data>
+
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="k"/>
+            </whitelist>
+            <constant value="picture"/>
+        </data>
+
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="r"/>
+            </whitelist>
+            <constant value="object"/>
+        </data>
+
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="g"/>
+            </whitelist>
+            <constant value="film"/>
+        </data>
+
+        <data name="@mat" source="leader.type">
+            <whitelist>
+                <entry name="m"/>
+            </whitelist>
+            <constant value="file"/>
+        </data>
+
+        <combine name="@mat" value="continuing resource">
+            <data source="leader.type">
+                <whitelist>
+                    <entry name="a"/>
+                </whitelist>
+            </data>
+            <data source="leader.bibliographicLevel">
+                <whitelist>
+                    <entry name="b"/>
+                    <entry name="i"/>
+                    <entry name="s"/>
+                </whitelist>
+            </data>
+        </combine>
+
+        <data name="material" source="@mat"/>
+
+        <!--
+        Kann je nach Publikationstyp unterschiedliche bedeutung haben
+        Vgl. http://www.loc.gov/marc/bibliographic/bd008.html
+        -->
+        <data name="form" source="008">
+            <substring start="23" end="24"/>
+        </data>
+
+        <!-- Library Of Congress Control Number -->
+        <data name="lccn" source="010  .a"/>
+
+
+        <!-- Agency Control Number -->
+        <combine name="${name}" value="${value}" reset="true">
+            <data source="0167 .2" name="name">
+                <lookup in="isilMap"/>
+            </data>
+            <data source="0167 .a" name="value"/>
+        </combine>
+
+
+        <!-- Note: BSZ uses wrong indicators/subfields-combination -->
+        <combine name="${name}" value="${value}" reset="true">
+            <data source="016  .a" name="name">
+                <regexp match="^\(((.*))\)" format="${1}"/>
+                <lookup in="isilMap"/>
+            </data>
+            <data source="016  .a" name="value">
+                <regexp match="^\(.*\)((.*))" format="${1}"/>
+            </data>
+        </combine>
+        <data source="020  .a" name="isbn13">
+            <isbn to="isbn13"/>
+        </data>
+
+        <data source="022  .a" name="issn"/>
+
+        <data source="0242 .a" name="ismn"/>
+
+        <data source="0243 .a" name="gtin14"/>
+
+        <!-- Other Standard Identifier  -->
+        <combine name="${name}" value="${value}" reset="true">
+            <data source="0247 .2" name="name">
+                <lookup in="doiMap"/>
+            </data>
+            <data source="0247 .a" name="value"/>
+        </combine>
+
+
+        <!-- System Control Number -->
+        <combine name="${name}" value="${value}" reset="true">
+            <data source="035  .a" name="name">
+                <regexp match="^\((.*)\)" format="${1}"/>
+                <lookup in="isilMap"/>
+            </data>
+            <data source="035  .a" name="value">
+                <regexp match="^\(.*\)((.*))" format="${1}"/>
+            </data>
+        </combine>
+
+        <!-- Language code for the original language of the primary content of the item -->
+        <data name="originalLanguage" source="041? .h"/>
+
+        <!-- Language code for works in multiple languages,
+             the codes for the languages of the text are recorded in the order of their predominance in the text -->
+        <data name="language" source="041? .a"/>
+
+
+        <data name="country" source="044  .c"/>
+
+        <entity name="creator" flushWith="100? " reset="true">
+            <data name="name" source="100? .a"/>
+            <data name="ref" source="100? .0">
+                <regexp match="^\(DE-588.?\)((.*))" format="${1}"/>
+            </data>
+            <choose name="rel" flushWith="100? ">
+                <data source="100? .4"/>
+                <data source="100? ">
+                    <constant value="undef"/>
+                </data>
+            </choose>
+        </entity>
+
+        <entity name="creatorAddedEntry" flushWith="700? " reset="true">
+            <data name="name" source="700? .a"/>
+            <data name="ref" source="700? .0">
+                <regexp match="^\(DE-588.?\)((.*))" format="${1}"/>
+            </data>
+            <choose name="rel" flushWith="700? ">
+                <data source="700? .4"/>
+                <data source="700? ">
+                    <constant value="undef"/>
+                </data>
+            </choose>
+        </entity>
+
+        <entity name="creatorCorporateBody" flushWith="110? " reset="true">
+            <data name="name" source="110? .a"/>
+            <data name="ref" source="110? .0">
+                <regexp match="^\(DE-588.?\)((.*))" format="${1}"/>
+            </data>
+            <choose name="rel" flushWith="110? ">
+                <data source="110? .4"/>
+                <data source="110? ">
+                    <constant value="undef"/>
+                </data>
+            </choose>
+        </entity>
+
+        <entity name="creatorCorporateBodyAddedEntry" flushWith="710? " reset="true">
+            <data name="name" source="710? .a"/>
+            <data name="ref" source="710? .0">
+                <regexp match="^\(DE-588.?\)((.*))" format="${1}"/>
+            </data>
+            <choose name="rel" flushWith="710? ">
+                <data source="710? .4"/>
+                <data source="710? ">
+                    <constant value="undef"/>
+                </data>
+            </choose>
+        </entity>
+
+        <entity name="creatorMeeting" flushWith="111? " reset="true">
+            <data name="name" source="111? .a"/>
+            <data name="ref" source="111? .0">
+                <regexp match="^\(DE-588.?\)((.*))" format="${1}"/>
+            </data>
+            <choose name="rel" flushWith="111? ">
+                <data source="111? .4"/>
+                <data source="111? ">
+                    <constant value="undef"/>
+                </data>
+            </choose>
+        </entity>
+
+        <entity name="creatorMeetingAddedEntry" flushWith="711? " reset="true">
+            <data name="name" source="711? .a"/>
+            <data name="ref" source="711? .0">
+                <regexp match="^\(DE-588.?\)((.*))" format="${1}"/>
+            </data>
+            <choose name="rel" flushWith="711? ">
+                <data source="711? .4"/>
+                <data source="711? ">
+                    <constant value="undef"/>
+                </data>
+            </choose>
+        </entity>
+
+        <combine name="mainTitle" value="${title}" flushWith="record">
+            <data name="title" source="245??.a"/>
+            <postprocess>
+                <setreplace map="diac"/>
+            </postprocess>
+        </combine>
+
+
+        <combine name="remainderOfTitle" value="${title}" flushWith="record">
+            <data name="title" source="245??.b"/>
+            <postprocess>
+                <setreplace map="diac"/>
+            </postprocess>
+        </combine>
+
+
+        <combine name="nameOfPart" value="${title}" flushWith="record">
+            <data name="title" source="245??.p"/>
+            <postprocess>
+                <setreplace map="diac"/>
+            </postprocess>
+        </combine>
+
+
+        <combine name="uniformTitle" value="${title}" flushWith="record">
+            <data name="title" source="130??.a|240??.a|730??.a|700??.t"/>
+            <postprocess>
+                <setreplace map="diac"/>
+            </postprocess>
+        </combine>
+
+
+        <combine name="varyingFormMainTitle" value="${title}" flushWith="record">
+            <data name="title" source="246??.a"/>
+            <postprocess>
+                <setreplace map="diac"/>
+            </postprocess>
+        </combine>
+
+
+        <combine name="varyingFormRemainderOfTitle" value="${title}" flushWith="record">
+            <data name="title" source="246??.b"/>
+            <postprocess>
+                <setreplace map="diac"/>
+            </postprocess>
+        </combine>
+
+        <data name="volume" source="245??.n|245??.p"/>
+
+        <data name="titleInCollection" source="249??.a"/>
+
+        <data name="edition" source="250??.a"/>
+
+
+        <data name="publicationPlace" source="260??.a|264??.a"/>
+
+
+        <data name="publisher" source="260??.b|264??.b"/>
+
+
+        <!-- <data name="issued" source="2603 .c" /> -->
+
+
+        <data name="issued" source="008">
+            <substring start="7" end="11"/>
+        </data>
+
+
+        <data name="extent" source="300  .a" />
+
+        <data name="contentType" source="336  .a" />
+
+        <data name="dissertationIdentifier" source="502  .o"/>
+
+
+        <data name="partOf" source="773??.w">
+            <regexp match="^\(.*\)((.*))" format="${1}"/>
+        </data>
+
+
+        <!-- TOC2 Projekt -->
+        <entity name="onlineResource" flushWith="85642" reset="true">
+            <data name="type" source="85642.3"/>
+            <data name="url" source="85642.u"/>
+        </entity>
+
+
+        <!-- RVK-DDC Projekt -->
+        <entity name="subject" flushWith="600??|610??|611??|630??|648??|650??|651??|655??" reset="true">
+            <data name="name" source="600??.a|610??.a|611??.a|630??.a|648??.a|650??.a|651??.a|655??.a"/>
+            <data name="ref" source="600??.0|610??.0|611??.0|630??.0|648??.0|650??.0|651??.0|655??.0">
+                <regexp match="^\(DE-588.?\)((.*))" format="${1}"/>
+            </data>
+            <!-- MARC21 Datafield Tag -->
+            <combine name="tag" value="${}">
+                <data source="600??|610??|611??|630??|648??|650??|651??|655??">
+                    <switch-name-value/>
+                    <substring start="0" end="3"/>
+                </data>
+            </combine>
+        </entity>
+
+        <data name="udc" source="080??.a"/>
+
+        <!--
+        DNB Sachgruppen
+        Vgl: https://wiki.dnb.de/pages/viewpage.action?title=MARC-Konkordanzen&spaceKey=KATALOGSYSTEM, S.77f
+        -->
+        <entity name="sachgruppe" flushWith="082??|083??" reset="true">
+            <if>
+                <data source="082??.2">
+                    <whitelist>
+                        <entry name="22sdnb"/>
+                        <entry name="23sdnb"/>
+                    </whitelist>
+                </data>
+            </if>
+            <data name="name" source="082??.a|083??.a"/>
+            <data name="ref" source="082??.2|083??.2"/>
+        </entity>
+
+        <entity name="sachgruppe" flushWith="084??" reset="true">
+            <if>
+                <data name="ref" source="084??.2">
+                    <whitelist>
+                        <entry name="sdnb"/>
+                    </whitelist>
+                </data>
+            </if>
+            <if>
+                <data source="084??.q">
+                    <regexp match="^(?!DE-600).*$"/>
+                </data>
+            </if>
+            <data name="name" source="084??.a"/>
+            <data name="source" source="084??.q"/>
+        </entity>
+
+        <data name="ddc" source="082??.a|083??.a|085??.b"/>
+
+        <combine name="${type}" value="${value}" reset="true" sameEntity="true">
+            <data name="value" source="084??.a"/>
+            <data name="type" source="084??.2">
+                <case to="lower"/>
+                <trim/>
+                <whitelist>
+                    <entry name="asb"/>
+                    <entry name="bkl"/>
+                    <entry name="ddc"/>
+                    <entry name="dopaed"/>
+                    <entry name="ghbs"/>
+                    <entry name="ifzs"/>
+                    <entry name="kab"/>
+                    <entry name="kktb"/>
+                    <entry name="lcc"/>
+                    <entry name="methepp"/>
+                    <entry name="msc"/>
+                    <entry name="njb"/>
+                    <entry name="nwbib"/>
+                    <entry name="rpb"/>
+                    <entry name="rvk"/>
+                    <entry name="sbb"/>
+                    <entry name="sfb"/>
+                    <entry name="ssd"/>
+                    <entry name="sswd"/>
+                    <entry name="stub"/>
+                    <entry name="udc"/>
+                </whitelist>
+            </data>
+        </combine>
+    </rules>
+
+    <maps>
+        <map name="isilMap">
+            <entry name="DE-101" value="dnb"/>
+            <entry name="DE-599" value="eki"/>
+            <entry name="DE-600" value="zdb"/>
+            <!-- Falsch aufgeführte EKI in hbz Daten -->
+            <entry name="DE-605" value="eki"/>
+            <entry name="FrPBN" value="bnf"/>
+            <entry name="ItFiC" value="cll"/>
+            <entry name="OCoLC" value="oclc"/>
+            <entry name="Uk" value="bnb"/>
+            <entry name="XXXxUND" value="eki!"/>
+        </map>
+        <map name="doiMap" default="undefDoi">
+            <entry name="doi" value="doi"/>
+            <entry name="handle" value="handle"/>
+            <entry name="urn" value="urn"/>
+        </map>
+        <map name="diac">
+            <entry name="ä" value="ae"/>
+            <entry name="ü" value="ue"/>
+            <entry name="ö" value="oe"/>
+            <entry name="ß" value="ss"/>
+            <entry name="é" value="e"/>
+            <entry name="á" value="a"/>
+            <entry name="ë" value="e"/>
+            <entry name="ï" value="i"/>
+            <entry name="à" value="a"/>
+            <entry name="è" value="e"/>
+            <entry name="â" value="a"/>
+            <entry name="ā" value="a"/>
+            <entry name="ı" value="i"/>
+            <entry name="ê" value="e"/>
+            <entry name="å" value="a"/>
+            <entry name="ø" value="oe"/>
+            <entry name="æ" value="ae"/>
+            <entry name="ç" value="c"/>
+            <entry name="œ" value="oe"/>
+            <entry name="ñ" value="n"/>
+            <entry name="š" value="s"/>
+        </map>
+    </maps>
+</metamorph>
