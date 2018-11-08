@@ -50,19 +50,7 @@
             <constant value="t"/>
         </data>
 
-        <data name="title" source="mainTitle"/>
-        <data name="title" source="varyinFormMainTitle"/>
-        <data name="remainder" source="remainderOfTitle"/>
-        <data name="remainder" source="varyingFormRemainderOfTitle"/>
-        <data source="issued">
-            <regexp match="\d\d\d\d"/>
-        </data>
         <data name="creator" source="creator.name|creatorAddedEntry.name|creatorCorporateBody.name|creatorCorporateBodyAddedEntry.name|creatorMeeting.name|creatorMeetingAddedEntry.name"/>
-        <data name="subject" source="subject.name"/>
-        <data name="subject" source="subject.tag"/>
-        <data name="sachgruppe" source="sachgruppe.name"/>
-        <data name="material" source="material"/>
-
         <data name="gnd" source="creator.ref"/>
         <data name="gnd" source="creatorAddedEntry.ref"/>
         <data name="gnd" source="creatorCorporateBody.ref"/>
@@ -70,6 +58,15 @@
         <data name="gnd" source="creatorMeeting.ref"/>
         <data name="gnd" source="creatorMeetingAddedEntry.ref"/>
         <data name="gnd" source="subject.ref"/>
+        <data name="material" source="material"/>
+        <data name="remainder" source="remainderOfTitle"/>
+        <data name="remainder" source="varyingFormRemainderOfTitle"/>
+        <data name="sachgruppe" source="sachgruppe.name"/>
+        <data name="subject" source="subject.name"/>
+        <data name="subject" source="subject.tag"/>
+        <data name="title" source="mainTitle"/>
+        <data name="title" source="varyinFormMainTitle"/>
+        <data source="issued"><regexp match="\d\d\d\d"/></data>
 
         <!-- possible additions: -->
         <!--
