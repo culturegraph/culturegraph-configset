@@ -29,9 +29,13 @@ solr stop -all
 
 ## Configure
 
+**IMPORTANT**: This step is mandatory, otherwise the Data Import Handler won't work.
+
 Change the locations or data sources in `solr-data-config.xml`.
 
 ## Installation
+
+It is advised to use the [Automatic Installation](#automatic-installation).
 
 **NOTE**: The config set contains a vanilla `solrconfig.xml` that needs to be modified.
 
