@@ -125,7 +125,7 @@
     <field name="creator" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <field name="deleted" type="boolean" indexed="true" stored="false" required="false" multiValued="false" docValues="false" />
     <field name="isil" type="string" indexed="true" stored="false" required="false" multiValued="false" docValues="true"/>
-    <field name="issued" type="pint" indexed="true" stored="false" docValues="false"/>
+    <field name="issued" type="pint" indexed="true" stored="false" docValues="true"/>
     <field name="material" type="text_general" indexed="true" stored="false" />
     <!-- Remainder of Title and Remainder of Title Variations -->
     <field name="remainder" type="text_general" indexed="true" stored="false" />
