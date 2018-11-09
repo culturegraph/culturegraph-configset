@@ -130,7 +130,7 @@
     <!-- Remainder of Title and Remainder of Title Variations -->
     <field name="remainder" type="text_general" indexed="true" stored="false" />
     <!-- DNB Sachgruppen -->
-    <field name="sachgruppe" type="string" indexed="true" stored="false" multiValued="true"/>
+    <field name="sachgruppe" type="strings" indexed="true" stored="false" multiValued="true"/>
     <!-- Subject Terms -->
     <field name="subject" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <field name="tags" type="strings" indexed="true" stored="false" multiValued="true"/>    
