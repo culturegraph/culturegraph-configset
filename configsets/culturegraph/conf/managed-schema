@@ -130,6 +130,7 @@
     <field name="isil" type="text_general" indexed="true" stored="false" required="false" multiValued="false" docValues="false"/>
     <!-- YYYY when the record was issued -->
     <field name="issued" type="pint" indexed="false" stored="false" docValues="true"/>
+    <!-- type of material -->
     <field name="material" type="text_general" indexed="true" stored="false" />
     <!-- Remainder of Title and Remainder of Title Variations -->
     <field name="remainder" type="text_general" indexed="true" stored="false" />
