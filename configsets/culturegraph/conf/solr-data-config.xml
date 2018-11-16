@@ -1,6 +1,7 @@
 
 <dataConfig>
     <dataSource name="binfile" type="BinFileDataSource" />
+    <!-- Data Source uses a driver for MySQL 8.0.12 -->
     <dataSource type="JdbcDataSource"
                 autoCommit="false"
                 batchSize="-1"
