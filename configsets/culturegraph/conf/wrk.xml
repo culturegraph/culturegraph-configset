@@ -68,24 +68,6 @@
         <data name="title" source="varyinFormMainTitle"/>
         <data source="issued"><regexp match="\d\d\d\d"/></data>
 
-        <!-- possible additions: -->
-        <!--
-        <data source="publisher"/>
-        <data source="publicationPlace"/>
-        <data source="material"/>
-        <data source="country"/>
-        <data source="originalLanguage"/>
-        <data source="language"/>
-        <data source="isbn13"/>
-        <data source="gtin14"/>
-        <data source="eki"/>
-        <data source="dnb"/>
-        <data source="oclc"/>
-        <data source="ismn"/>
-        <data source="doi"/>
-        <data source="rvk"/>
-        <data source="ddc"/>
-        -->
         <!-- include end -->
 
         <group>
