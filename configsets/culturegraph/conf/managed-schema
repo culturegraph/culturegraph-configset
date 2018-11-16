@@ -127,7 +127,7 @@
     <!-- Creator/Person/Corporate Body/Meeting full name -->
     <field name="creator" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <!-- International Standard Identifier for Libraries and Related Organizations -->
-    <field name="isil" type="text_general" indexed="true" stored="false" required="false" multiValued="false" docValues="false"/>
+    <field name="isil" type="string" indexed="false" stored="false" required="false" multiValued="false" docValues="true"/>
     <!-- YYYY when the record was issued -->
     <field name="issued" type="pint" indexed="false" stored="false" docValues="true"/>
     <!-- type of material -->
