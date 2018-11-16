@@ -1,28 +1,44 @@
 
 <dataConfig>
-    <dataSource type="BinFileDataSource"/>
+    <dataSource name="binfile" type="BinFileDataSource" />
+    <dataSource type="JdbcDataSource"
+                autoCommit="false"
+                batchSize="-1"
+                driver="com.mysql.cj.jdbc.Driver"
+                name="db1"
+                readOnly="true" 
+                url="jdbc:mysql://localhost:3306/ctg?serverTimezone=UTC&amp;useSSL=false&amp;allowPublicKeyRetrieval=true&amp;autoReconnect=true"
+                user="test" 
+                password="test"/>
+    <dataSource name="db1-fr" dataField="Marc21Database.full_record" type="FieldReaderDataSource"/>
+    
     <document>
-        <!-- MARC from JDBC Data Source Database -->
-        <!-- TODO implement -->
+        <!-- MARC from JDBC Data Source-->
+        <!-- NOTE:
+             * The 'query' gives the data needed to populate fields of the Solr document in full-import
+             * The 'deltaQuery' gives the primary keys of the current entity which have changes since the last index time
+             * The 'deltaImportQuery' gives the data needed to populate fields when running a delta-import
+             
+             See also: https://gist.github.com/maxivak/3e3ee1fca32f3949f052
+        -->
+    
+        <entity name="Marc21Database"
+                dataSource="db1"
+                processor="SqlEntityProcessor"
+                pk="id"
+                query="SELECT id,deleted,DATE_FORMAT(update_time,'%Y-%m-%dT%TZ') as update_time, full_record FROM records"
+                deltaQuery="SELECT id FROM records  WHERE update_time > '${dataimporter.last_index_time}'"
+                deltaImportQuery="SELECT id,deleted,DATE_FORMAT(update_time,'%Y-%m-%dT%TZ') as update_time, full_record FROM records WHERE id='${dataimporter.delta.id}'">
+            
+            <field column="id" name="id"/>
+            <field column="deleted" name="deleted"/>
+            <field column="update_time" name="created"/>
 
-        <!-- MARC-XML Records from FileSystem -->
-        <entity name="marcxmlfs"
-                processor="FileListEntityProcessor"
-                fileName=".+\.xml(.gz)?$"
-                recursive="true"
-                rootEntity="false"
-                dataSource="null"
-                baseDir="/CHANGE/ME">
-
-            <entity name="morph"
+            <entity name="m1" dataField="Marc21Database.full_record" dataSource="db1-fr" url="full_record"
                     processor="org.culturegraph.solr.handler.dataimport.MetamorphEntityProcessor"
-                    transformer="org.culturegraph.solr.dataimport.handler.HashCodeTransformer,org.culturegraph.solr.dataimport.handler.SymmetricMetamorphTransformer"
-                    url="${marcxmlfs.fileAbsolutePath}"
-                    inputFormat="marcxml"
-                    morphDef="ingestMarc21.xml,wrk.xml"
+                    inputFormat="marc21"
                     includeFullRecord="true"
-                    onError="skip">
-                <field column="id" name="id"/>
+                    morphDef="ingestMarc21.xml,wrk.xml">
 
                 <field column="creator" name="creator"/>
                 <field column="gnd" name="gnd"/>
@@ -34,7 +50,6 @@
                 <field column="title" name="title"/>
                 <field column="vendor" name="vendor"/>
 
-                <!-- wrk.xml keys -->
                 <field column="isbnVolumeTitle" name="keys"/>
                 <field column="titleCorporateBodyCreator" name="keys"/>
                 <field column="titleCreator" name="keys"/>
@@ -43,28 +58,43 @@
                 <field column="uniformTitleCreator" name="keys"/>
                 <field column="uniformTitleCreatorMeeting" name="keys"/>
                 
-                <!-- marc21 record -->
                 <field column="fullRecord" name="record" format="marc21" morphDef="excerpt.xml" />
             </entity>
+ 
         </entity>
 
-        <!-- MARC21 Records from FileSystem -->
-        <entity name="marcfs"
-                processor="FileListEntityProcessor"
-                fileName=".+\.(mrc|marc21)(.gz)?$"
-                recursive="true"
-                rootEntity="false"
-                dataSource="null"
-                baseDir="/CHANGE/ME">
+         <!-- Entity that reads marc21/marcxml records from a directory on the file system.
+              Parameter:
+                - dataDir: Directory with input files. Filename: *.* .
+                - format: Input file format. Choose: marc21 or marcxml.
+            
+              Example:
+              HTTP Request:
+              http://localhost:1111/solr/test/dataimport?&command=full-import&entity=FileSystemFolder&dataDir=PATH/TO/DIR&format=marc21&rows=0&debug=true&verbose=true
 
-            <entity name="morph"
-                    processor="org.culturegraph.solr.handler.dataimport.MetamorphEntityProcessor"
-                    transformer="org.culturegraph.solr.dataimport.handler.HashCodeTransformer,org.culturegraph.solr.dataimport.handler.SymmetricMetamorphTransformer"
-                    url="${marcfs.fileAbsolutePath}"
-                    inputFormat="marc21"
-                    morphDef="ingestMarc21.xml,wrk.xml"
+              Check Status:
+              http://localhost:1111/solr/test/dataimport?command=show-status
+
+              Abort:
+              http://localhost:1111/solr/test/dataimport?command=abort
+         -->
+         <entity baseDir="${dataimporter.request.dataDir}"
+                 dataSource="null"
+                 fileName=".+\..+(.gz)?$"
+                 processor="FileListEntityProcessor"
+                 recursive="true"
+                 rootEntity="false"
+                 name="FileSystemFolder">
+
+            <entity dataSource="binfile"
                     includeFullRecord="true"
-                    onError="skip">
+                    inputFormat="${dataimporter.request.format}"
+                    morphDef="ingestMarc21.xml,wrk.xml"
+                    name="m1"
+                    onError="skip"
+                    processor="org.culturegraph.solr.handler.dataimport.MetamorphEntityProcessor"
+                    transformer="org.culturegraph.solr.dataimport.handler.SymmetricMetamorphTransformer"
+                    url="${FileSystemFolder.fileAbsolutePath}">
                 <field column="id" name="id"/>
 
                 <field column="creator" name="creator"/>
