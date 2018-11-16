@@ -42,14 +42,6 @@
             </setreplace>
         </data>
 
-        <data name="deleted" source="status">
-            <whitelist>
-                <entry name="d"/>
-            </whitelist>
-            <!-- true -->
-            <constant value="t"/>
-        </data>
-
         <data name="creator" source="creator.name|creatorAddedEntry.name|creatorCorporateBody.name|creatorCorporateBodyAddedEntry.name|creatorMeeting.name|creatorMeetingAddedEntry.name"/>
         <data name="gnd" source="creator.ref"/>
         <data name="gnd" source="creatorAddedEntry.ref"/>
