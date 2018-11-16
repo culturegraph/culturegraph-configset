@@ -140,8 +140,8 @@
     <field name="vendor" type="text_general" indexed="true" stored="false" required="false" multiValued="false" docValues="false"/>
 
     <!-- Useable with Graph Query Parser -->
-    <field name="gnd" type="strings" indexed="true" stored="false" multiValued="true" docValues="true"/>
-    <field name="keys" type="strings" indexed="true" stored="false" multiValued="true" docValues="true"/>
+    <field name="gnd" type="strings" indexed="false" stored="false" multiValued="true" docValues="true"/>
+    <field name="keys" type="strings" indexed="false" stored="false" multiValued="true" docValues="true"/>
 
     <!-- Record / Payload -->
     <field name="record" type="string" indexed="false" stored="true" multiValued="false" large="true" docValues="false"/>
