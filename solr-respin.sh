@@ -125,8 +125,8 @@ solr=$(realpath ${SOLR})
 wget -q -P ${solr}/dist https://github.com/culturegraph/solr-metamorph-transformer/releases/download/v0.2.0/solr-metamorph-transformer-0.2.0-fat.jar
 [ ! $? ] && echo "solr-metamorph-transformer-0.2.0-fat.jar not found!" && exit 1
 
-wget -q -P ${solr}/dist https://github.com/culturegraph/solr-metamorph-entity-processor/releases/download/v0.2.0/solr-metamorph-entity-processor-0.2.0-fat.jar
-[ ! $? ] && echo "solr-metamorph-entity-processor-0.2.0-fat.jar not found!" && exit 1
+wget -q -P ${solr}/dist https://github.com/culturegraph/solr-metamorph-entity-processor/releases/download/v0.3.0/solr-metamorph-entity-processor-0.3.0-fat.jar
+[ ! $? ] && echo "solr-metamorph-entity-processor-0.3.0-fat.jar not found!" && exit 1
 
 # Add metafacture to solr server (into: server/lib/ext/metafacture)
 echo "Adding third-party (metafacture) jars to solr server"
