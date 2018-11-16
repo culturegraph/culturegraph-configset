@@ -8,6 +8,7 @@
 SOLR_VERSION="7.5.0"
 SOLR="solr-${SOLR_VERSION}"
 METAFACTURE_VERSION="5.0.0"
+MYSQL_CONNECTOR_VERSION="8.0.12"
 TARGET=${SOLR}-culturegraph-respin.zip
 
 
@@ -109,6 +110,14 @@ rm snippet.txt
 #
 # Modify solr server
 #
+
+# Add MySQL Connector to solr server (into:lib)
+echo "Adding MySQL Connector ${MYSQL_CONNECTOR_VERSION}"
+repo="http://central.maven.org/maven2/mysql/mysql-connector-java"
+
+solr=$(realpath ${SOLR})
+wget -q -P ${solr}/server/lib ${repo}/${MYSQL_CONNECTOR_VERSION}/mysql-connector-java-${MYSQL_CONNECTOR_VERSION}.jar
+[ ! $? ] && echo "MySQL Connector ${MYSQL_CONNECTOR_VERSION} not found!" && exit 1
 
 # Add third party add-ons for the data import handler (into: dist)
 echo "Adding third-party (data import handler add-ons) jars to dist"
