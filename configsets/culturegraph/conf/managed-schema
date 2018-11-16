@@ -133,7 +133,6 @@
     <field name="sachgruppe" type="strings" indexed="true" stored="false" multiValued="true" docValues="false" />
     <!-- Subject Terms -->
     <field name="subject" type="text_general" indexed="true" stored="false" multiValued="true"/>
-    <field name="tags" type="strings" indexed="true" stored="false" multiValued="true"/>    
     <!-- Main Title and Main Title Variations -->
     <field name="title" type="text_general" indexed="true" stored="false" />
     <!-- A abbreviation of the record owner/vendor. A three-letter-code to mark the origin -->
