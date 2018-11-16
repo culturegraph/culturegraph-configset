@@ -120,8 +120,8 @@
     <!-- <copyField source="*" dest="_text_"/> -->
 
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" docValues="true" />
-    
-    <field name="deleted" type="boolean" indexed="true" stored="false" required="false" multiValued="false" docValues="false" />
+
+    <field name="deleted" type="boolean" default="0" indexed="false" stored="false" required="false" multiValued="false" docValues="true" />
 
     <!-- Creator/Person/Corporate Body/Meeting full name -->
     <field name="creator" type="text_general" indexed="true" stored="false" multiValued="true"/>
