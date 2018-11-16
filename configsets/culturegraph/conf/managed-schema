@@ -166,16 +166,16 @@
     -->
 
 	  <copyField source="id" dest="_text_"/>
+    <copyField source="creator" dest="_text_"/>
 	  <copyField source="gnd" dest="_text_"/>
 	  <copyField source="isil" dest="_text_"/>
+    <copyField source="issued" dest="_text_"/>
 	  <copyField source="material" dest="_text_"/>
+    <copyField source="remainder" dest="_text_"/>
 	  <copyField source="sachgruppe" dest="_text_"/>
 	  <copyField source="subject" dest="_text_"/>
-	  <copyField source="vendor" dest="_text_"/>
-    <copyField source="creator" dest="_text_"/>
-    <copyField source="issued" dest="_text_"/>
-    <copyField source="remainder" dest="_text_"/>
     <copyField source="title" dest="_text_"/>
+	  <copyField source="vendor" dest="_text_"/>
 
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
