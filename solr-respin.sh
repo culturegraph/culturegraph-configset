@@ -3,14 +3,19 @@
 
 #
 # Settings
+# Change those, if needed
 #
 
 SOLR_VERSION="7.5.0"
-SOLR="solr-${SOLR_VERSION}"
 METAFACTURE_VERSION="5.0.0"
 MYSQL_CONNECTOR_VERSION="8.0.12"
-TARGET=${SOLR}-culturegraph-respin.zip
 
+#
+# Settings End
+#
+
+SOLR="solr-${SOLR_VERSION}"
+TARGET=${SOLR}-culturegraph-respin.zip
 
 #
 # Welcome
