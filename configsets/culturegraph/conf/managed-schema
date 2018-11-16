@@ -121,6 +121,7 @@
 
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" docValues="true" />
 
+    <field name="created" type="pdate" default="NOW" indexed="false" stored="false" docValues="true"/>
     <field name="deleted" type="boolean" default="0" indexed="false" stored="false" required="false" multiValued="false" docValues="true" />
 
     <!-- Creator/Person/Corporate Body/Meeting full name -->
