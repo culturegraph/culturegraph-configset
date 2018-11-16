@@ -113,9 +113,6 @@ rm snippet.txt
 # Add third party add-ons for the data import handler (into: dist)
 echo "Adding third-party (data import handler add-ons) jars to dist"
 solr=$(realpath ${SOLR})
-wget -q -P ${solr}/dist https://github.com/culturegraph/solr-hashcode-transformer/releases/download/v0.1.0/solr-hashcode-transformer-0.1.0.jar
-[ ! $? ] && echo "solr-hashcode-transformer-0.1.0.jar not found!" && exit 1
-
 wget -q -P ${solr}/dist https://github.com/culturegraph/solr-metamorph-transformer/releases/download/v0.2.0/solr-metamorph-transformer-0.2.0-fat.jar
 [ ! $? ] && echo "solr-metamorph-transformer-0.2.0-fat.jar not found!" && exit 1
 
