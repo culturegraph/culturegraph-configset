@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <metamorph xmlns="http://www.culturegraph.org/metamorph" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1">
     <meta>
@@ -6,62 +6,6 @@
     </meta>
 
     <rules>
-
-        <!-- include start -->
-        <!-- Includes literals from the previous metamorph xml -->
-
-        <data name="id" source="idn">
-            <setreplace>
-                <entry name="AT-OBV" value="OBV"/>
-                <entry name="DE-101" value="DNB"/>
-                <entry name="DE-576" value="BSZ"/>
-                <entry name="DE-601" value="GBV"/>
-                <entry name="DE-603" value="HEB"/>
-                <entry name="DE-604" value="BVB"/>
-                <entry name="DE-605" value="HBZ"/>
-                <entry name="Uk" value="BNB"/>
-            </setreplace>
-        </data>
-
-        <data name="@catalog" source="idn">
-            <regexp match="^\((.+)\)" format="${1}"/>
-        </data>
-
-        <data name="isil" source="@catalog"/>
-
-        <data name="vendor" source="@catalog">
-            <setreplace>
-                <entry name="AT-OBV" value="OBV"/>
-                <entry name="DE-101" value="DNB"/>
-                <entry name="DE-576" value="BSZ"/>
-                <entry name="DE-601" value="GBV"/>
-                <entry name="DE-603" value="HEB"/>
-                <entry name="DE-604" value="BVB"/>
-                <entry name="DE-605" value="HBZ"/>
-                <entry name="Uk" value="BNB"/>
-            </setreplace>
-        </data>
-
-        <data name="creator" source="creator.name|creatorAddedEntry.name|creatorCorporateBody.name|creatorCorporateBodyAddedEntry.name|creatorMeeting.name|creatorMeetingAddedEntry.name"/>
-        <data name="gnd" source="creator.ref"/>
-        <data name="gnd" source="creatorAddedEntry.ref"/>
-        <data name="gnd" source="creatorCorporateBody.ref"/>
-        <data name="gnd" source="creatorCorporateBodyAddedEntry.ref"/>
-        <data name="gnd" source="creatorMeeting.ref"/>
-        <data name="gnd" source="creatorMeetingAddedEntry.ref"/>
-        <data name="gnd" source="subject.ref"/>
-        <data name="material" source="material"/>
-        <data name="remainder" source="remainderOfTitle"/>
-        <data name="remainder" source="varyingFormRemainderOfTitle"/>
-        <data name="sachgruppe" source="sachgruppe.name"/>
-        <data name="subject" source="subject.name"/>
-        <data name="subject" source="subject.tag"/>
-        <data name="title" source="mainTitle"/>
-        <data name="title" source="varyinFormMainTitle"/>
-        <data source="issued"><regexp match="\d\d\d\d"/></data>
-
-        <!-- include end -->
-
         <group>
             <data source="idn"/>
             <postprocess>
@@ -83,55 +27,33 @@
                 <constant value="X"/>
             </data>
         </choose>
-
-        <choose name="@publicationType">
-            <combine name="" value="${isbn}">
-                <if>
-                    <data source="remainderOfTitle">
-                        <regexp match="Hoerspiel(.*)"/>
-                    </data>
-                </if>
-                <data source="isbn13" name="isbn"/>
-            </combine>
-            <combine name="" value="${isbn}">
-                <if>
-                    <data source="publicationType">
-                        <equals string="s"/>
-                    </data>
-                </if>
-                <data source="isbn13" name="isbn"/>
-            </combine>
-            <combine name="" value="${idn}">
-                <if>
-                    <data source="publicationType">
-                        <equals string="s"/>
-                    </data>
-                </if>
-                <data name="idn" source="_id"/>
-            </combine>
-            <combine name="" value="${idn}">
-                <if>
-                    <data source="publicationType">
-                        <equals string="v"/>
-                    </data>
-                </if>
-                <data name="idn" source="_id"/>
-            </combine>
-            <combine name="" value="${idn}">
-                <if>
-                    <data source="publicationType">
-                        <equals string="m"/>
-                    </data>
-                </if>
-                <data name="idn" source="_id"/>
-            </combine>
-            <data source="_id">
-                <constant value="X"/>
+        <!--
+<combine name="testTitel" value="${title}" reset="false">
+<data source="material">
+                <not-equals string="continuing resource"/>
             </data>
-        </choose>
-
-
-        <combine name="isbnVolumeTitle" value="${isbn}-I-${volume}-${title}" reset="false">
+			<data source="multipartLevel">
+							<blacklist>
+							<entry name="set"/>
+							<entry name="part-dep"/>
+							</blacklist>
+						</data>
+				<data source="mainTitle">
+					<blacklist map="noiseTitles"></blacklist>
+                   </data>
+				<none name="collection" value="none-fired">
+					<data source="titleInCollection"/>
+			</none>
+			<none name="partOf" value="none-fired">
+					<data source="partOf"/>
+			</none>		
+            <combine name="title" value="${title}II${remainderOfTitle}" flushWith="record">
+                <data name="title" source="mainTitle"/>
+				<data name="remainderOfTitle" source="remainderOfTitle"/>
+			</combine>
+			</combine>
+-->
+        <combine name="isbnVolumeTitle" value="${isbn}-${volume}-${title}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
@@ -141,31 +63,46 @@
                     <entry name="part-dep"/>
                 </blacklist>
             </data>
+            <data source="mainTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
             <none name="collection" value="none-fired">
                 <data source="titleInCollection"/>
+            </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
             </none>
             <data name="volume" source="@volume"/>
             <data name="isbn" source="isbn13"/>
+            <data name="material" source="material"/>
             <combine name="title" value="${title}" flushWith="record">
-                <data name="title" source="mainTitle"/>
+                <data name="title" source="mainTitle">
+                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format="${2}"/>
+                </data>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
+                    <!--sorgt dafür, dass Umlaute nicht decomposed u und Punkte getrennt dargestellt werden, dann kann diac greifen -->
                     <setreplace map="diac"/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <replace pattern="\u030E" with=""/>
                     <setreplace map="numberLiteral"/>
+                    <replace pattern="\sbis\s" with=""/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <!--Block kombinierende diakritische Zeichen-->
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <!--unicode start of string + string terminator-->
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <!--Kombinierender doppeltbreiter übergesetzter senkrechter Strich-->
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-                    <replace pattern="\s?bis\s?" with="-"/>
+                    <!--jedes Nicht-Wortzeichen entfernen, alles außer[a-zA-Z_0-9]-->
                     <substring end="50"/>
                 </postprocess>
             </combine>
         </combine>
 
 
-        <combine name="titleCreator" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+        <combine name="titleCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
@@ -175,46 +112,77 @@
                     <entry name="part-dep"/>
                 </blacklist>
             </data>
+            <data source="mainTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creator.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
             <none name="collection" value="none-fired">
                 <data source="titleInCollection"/>
             </none>
-
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
             <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
-                <data name="title" source="mainTitle"/>
-                <data name="remainderOfTitle" source="remainderOfTitle"/>
-                <postprocess>
-                    <case to="lower"/>
-                    <normalize-utf8/>
-                    <setreplace map="diac"/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <replace pattern="\u030E" with=""/>
-                    <setreplace map="numberLiteral"/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
-                    <replace pattern="\W" with=""/>
-                    <replace pattern="\s?bis\s?" with="-"/>
-                    <substring end="80"/>
-                </postprocess>
+                <combine name="title" value="${title}" flushWith="record">
+                    <data name="title" source="mainTitle">
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="numberLiteral"/>
+                        <setreplace map="diac"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
+                    <data name="remainderOfTitle" source="remainderOfTitle">
+                        <blacklist map="noiseRemainderTitle"></blacklist>
+                        <!--<regexp match="^((D|d)(er|ie|as|em|es) |(E|e)in(e | )|(E. |e. )|(D. |d. )|(T|t)he) (.*)$" format="${2}"/>-->
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                        <regexp match="^(.*)$" format=" ${1} "/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="numberLiteral"/>
+                        <setreplace map="RAK_abkürz"/>
+                        <setreplace map="diac"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
             </combine>
             <data name="volume" source="@volume"/>
-            <data name="publicationType" source="@publicationType"/>
+            <data name="material" source="material"/>
+
             <combine name="creator" value="${creator}" sameEntity="true">
                 <data source="creator.rel">
-                    <blacklist>
-                        <entry name="pbl"/>
-                        <entry name="prn"/>
-                        <entry name="mfp"/>
-                        <entry name="pma"/>
-                    </blacklist>
+                    <blacklist map="noiseCreatorRel"></blacklist>
                 </data>
 
-                <combine name="creator" value="${name}" reset="false">
-                    <data source="creator.name" name="name">
-                        <regexp match="^([\p{L}\p{M}\-]*)(, ([\p{L}\p{M}.]*)( .*)?)?$" format="${1}${3}"/>
-                        <occurrence only="lessThan 4"/>
-                    </data>
-                </combine>
-
+                <data source="creator.name" name="creator">
+                    <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M}.,\-]*)( .*)?)?$" format="${1}${3}"/>
+                    <occurrence only="lessThan 4"/>
+                </data>
                 <postprocess>
                     <buffer/>
                     <setreplace map="namer"/>
@@ -223,18 +191,117 @@
                     <setreplace map="diac"/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
                 </postprocess>
-
             </combine>
         </combine>
 
-
-        <combine name="uniformTitleCreator" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+        <combine name="titleCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
-                <not-equals string="continuing resource"/>
+                <blacklist>
+                    <entry name="continuing resource"/>
+                    <entry name="musicNotated"/>
+                    <entry name="musicSound"/>
+                </blacklist>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <data source="mainTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorAddedEntry">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+                <combine name="title" value="${title}" flushWith="record">
+                    <data name="title" source="mainTitle">
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="diac"/>
+                        <setreplace map="numberLiteral"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
+                    <data name="remainderOfTitle" source="remainderOfTitle">
+                        <blacklist map="noiseRemainderTitle"></blacklist>
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                        <regexp match="^(.*)$" format=" ${1} "/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="numberLiteral"/>
+                        <setreplace map="RAK_abkürz"/>
+                        <setreplace map="diac"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="material" source="material"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorAddedEntry.rel">
+                    <blacklist map="noiseCreatorRel"></blacklist>
+                </data>
+                <data source="creatorAddedEntry.name" name="creator">
+                    <regexp match="^([\p{L}\p{M}\-\`\´\'\n]*)(, ([\p{L}\p{M},.-]*)( .*)?)?$" format="${1}${3}"/>
+                    <occurrence only="lessThan 4"/>
+                </data>
+                <postprocess>
+                    <buffer/>
+                    <setreplace map="namer"/>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                </postprocess>
+            </combine>
+        </combine>
+
+        <combine name="uniformTitleCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
+            <data source="material">
+                <blacklist>
+                    <entry name="continuing resource"/>
+                </blacklist>
             </data>
             <data source="multipartLevel">
                 <blacklist>
@@ -245,38 +312,47 @@
             <none name="collection" value="none-fired">
                 <data source="titleInCollection"/>
             </none>
-            <combine name="title" value="${title}" flushWith="record">
-                <data name="title" source="uniformTitle"/>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="uniformTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creator.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
 
+            <combine name="title" value="${title}" flushWith="record">
+                <data name="title" source="uniformTitle">
+                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                </data>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
                     <setreplace map="diac"/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="\sbis\s" with=""/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
-                    <setreplace map="numberLiteral"/>
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-                    <replace pattern="\s?bis\s?" with="-"/>
                     <substring end="80"/>
                 </postprocess>
             </combine>
             <data name="volume" source="@volume"/>
-            <data name="publicationType" source="@publicationType"/>
+            <data name="material" source="material"/>
             <combine name="creator" value="${creator}" sameEntity="true">
                 <data source="creator.rel">
-                    <blacklist>
-                        <entry name="pbl"/>
-                        <entry name="prn"/>
-                        <entry name="mfp"/>
-                        <entry name="pma"/>
-                    </blacklist>
+                    <blacklist map="noiseCreatorRel"></blacklist>
                 </data>
                 <combine name="creator" value="${name}">
-
                     <data source="creator.name" name="name">
-                        <regexp match="^([\p{L}\p{M}\-]*)(, ([\p{L}\p{M}.]*)( .*)?)?$" format="${1}${3}"/>
+                        <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M},.\-]*)( .*)?)?$" format="${1}${3}"/>
                         <occurrence only="lessThan 4"/>
                     </data>
                 </combine>
@@ -288,6 +364,7 @@
                     <setreplace map="diac"/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
@@ -295,9 +372,13 @@
             </combine>
         </combine>
 
-        <combine name="titleCorporateBodyCreator" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+        <combine name="uniformTitleCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
-                <not-equals string="continuing resource"/>
+                <blacklist>
+                    <entry name="continuing resource"/>
+                    <entry name="musicNotated"/>
+                    <entry name="musicSound"/>
+                </blacklist>
             </data>
             <data source="multipartLevel">
                 <blacklist>
@@ -308,108 +389,67 @@
             <none name="collection" value="none-fired">
                 <data source="titleInCollection"/>
             </none>
-            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
-                <data name="title" source="mainTitle"/>
-                <data name="remainderOfTitle" source="remainderOfTitle"/>
-                <postprocess>
-                    <case to="lower"/>
-                    <normalize-utf8/>
-                    <setreplace map="diac"/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <replace pattern="\u030E" with=""/>
-                    <setreplace map="numberLiteral"/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
-                    <replace pattern="\W" with=""/>
-                    <replace pattern="\s?bis\s?" with="-"/>
-                    <substring end="80"/>
-                </postprocess>
-            </combine>
-            <data name="volume" source="@volume"/>
-            <data name="publicationType" source="@publicationType"/>
-            <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorCorporateBody.rel">
-                    <blacklist>
-                        <entry name="pbl"/>
-                        <entry name="prn"/>
-                        <entry name="mfp"/>
-                        <entry name="pma"/>
-                    </blacklist>
-                </data>
-                <data name="creator" source="creatorCorporateBody.name"/>
-                <postprocess>
-                    <case to="lower"/>
-                    <normalize-utf8/>
-                    <setreplace map="diac"/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <replace pattern="\u030E" with=""/>
-                    <setreplace map="numberLiteral"/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
-                    <replace pattern="\W" with=""/>
-
-                </postprocess>
-            </combine>
-        </combine>
-
-
-        <combine name="uniformTitleCorporateBodyCreator" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
-            <data source="material">
-                <not-equals string="continuing resource"/>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="uniformTitle">
+                <blacklist map="noiseTitles"></blacklist>
             </data>
-            <data source="multipartLevel">
+            <data source="creatorAddedEntry.name">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
                 </blacklist>
             </data>
-            <none name="collection" value="none-fired">
-                <data source="titleInCollection"/>
-            </none>
+
             <combine name="title" value="${title}" flushWith="record">
-                <data name="title" source="uniformTitle"/>
+                <data name="title" source="uniformTitle">
+                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                </data>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
                     <setreplace map="diac"/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="\sbis\s" with=""/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
-                    <setreplace map="numberLiteral"/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-                    <replace pattern="\s?bis\s?" with="-"/>
                     <substring end="80"/>
                 </postprocess>
             </combine>
             <data name="volume" source="@volume"/>
-            <data name="publicationType" source="@publicationType"/>
+            <data name="material" source="material"/>
             <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorCorporateBody.rel">
-                    <blacklist>
-                        <entry name="pbl"/>
-                        <entry name="prn"/>
-                        <entry name="mfp"/>
-                        <entry name="pma"/>
-                    </blacklist>
+                <data source="creatorAddedEntry.rel">
+                    <blacklist map="noiseCreatorRel"></blacklist>
                 </data>
-                <data name="creator" source="creatorCorporateBody.name"/>
+                <combine name="creator" value="${name}">
+                    <data source="creatorAddedEntry.name" name="name">
+                        <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M},.\-]*)( .*)?)?$" format="${1}${3}"/>
+                        <occurrence only="lessThan 4"/>
+                    </data>
+                </combine>
                 <postprocess>
+                    <buffer/>
+                    <setreplace map="namer"/>
                     <case to="lower"/>
                     <normalize-utf8/>
                     <setreplace map="diac"/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
-                    <setreplace map="numberLiteral"/>
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-
                 </postprocess>
             </combine>
         </combine>
 
-        <combine name="titleCreatorMeeting" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+        <combine name="titleCorporateBodyCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
@@ -422,33 +462,392 @@
             <none name="collection" value="none-fired">
                 <data source="titleInCollection"/>
             </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="mainTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorCorporateBody.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
             <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
-                <data name="title" source="mainTitle"/>
-                <data name="remainderOfTitle" source="remainderOfTitle"/>
+                <combine name="title" value="${title}" flushWith="record">
+                    <data name="title" source="mainTitle">
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="diac"/>
+                        <setreplace map="numberLiteral"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
+                    <data name="remainderOfTitle" source="remainderOfTitle">
+                        <blacklist map="noiseRemainderTitle"></blacklist>
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                        <regexp match="^(.*)$" format=" ${1} "/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="numberLiteral"/>
+                        <setreplace map="RAK_abkürz"/>
+                        <setreplace map="diac"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="material" source="material"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorCorporateBody.rel">
+                    <blacklist map="noiseCreatorRel"></blacklist>
+                </data>
+                <data name="creator" source="creatorCorporateBody.name"/>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
                     <setreplace map="diac"/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
                     <setreplace map="numberLiteral"/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-                    <replace pattern="\s?bis\s?" with="-"/>
+                </postprocess>
+            </combine>
+        </combine>
+
+        <combine name="titleCorporateBodyCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+            <data source="material">
+                <blacklist>
+                    <entry name="continuing resource"/>
+                    <entry name="musicNotated"/>
+                    <entry name="musicSound"/>
+                </blacklist>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="mainTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorCorporateBodyAddedEntry.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
+            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+                <combine name="title" value="${title}" flushWith="record">
+                    <data name="title" source="mainTitle">
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="numberLiteral"/>
+                        <setreplace map="diac"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
+                    <data name="remainderOfTitle" source="remainderOfTitle">
+                        <blacklist map="noiseRemainderTitle"></blacklist>
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                        <regexp match="^(.*)$" format=" ${1} "/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="numberLiteral"/>
+                        <setreplace map="RAK_abkürz"/>
+                        <setreplace map="diac"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="material" source="material"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorCorporateBodyAddedEntry.rel">
+                    <blacklist map="noiseCreatorRel"></blacklist>
+                </data>
+                <data name="creator" source="creatorCorporateBodyAddedEntry.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                </postprocess>
+            </combine>
+        </combine>
+
+        <combine name="uniformTitleCreatorCorporateBody" value="${title}-${creator}-${volume}-${material}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="uniformTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorCorporateBody.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
+
+            <combine name="title" value="${title}" flushWith="record">
+                <data name="title" source="uniformTitle">
+                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                </data>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="\sbis\s" with=""/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
                     <substring end="80"/>
                 </postprocess>
             </combine>
             <data name="volume" source="@volume"/>
-            <data name="publicationType" source="@publicationType"/>
+            <data name="material" source="material"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorCorporateBody.rel">
+                    <blacklist map="noiseCreatorRel"></blacklist>
+                </data>
+                <data name="creator" source="creatorCorporateBody.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                </postprocess>
+            </combine>
+        </combine>
+
+        <combine name="uniformTitleCreatorCorporateBodyAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+            <data source="material">
+                <blacklist>
+                    <entry name="continuing resource"/>
+                    <entry name="musicNotated"/>
+                    <entry name="musicSound"/>
+                </blacklist>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="uniformTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorCorporateBodyAddedEntry.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                </blacklist>
+            </data>
+
+            <combine name="title" value="${title}" flushWith="record">
+                <data name="title" source="uniformTitle">
+                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                </data>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="\sbis\s" with=""/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <substring end="80"/>
+                </postprocess>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="material" source="material"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorCorporateBodyAddedEntry.rel">
+                    <blacklist>
+                        <entry name="pbl"/>
+                        <entry name="prn"/>
+                        <entry name="mfp"/>
+                        <entry name="pma"/>
+                    </blacklist>
+                </data>
+                <data name="creator" source="creatorCorporateBodyAddedEntry.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                </postprocess>
+            </combine>
+        </combine>
+
+        <combine name="titleCreatorMeeting" value="${title}-${creator}-${volume}-${material}" reset="false">
+            <data source="material">
+                <not-equals string="continuing resource"/>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="mainTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorMeeting.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
+            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+                <combine name="title" value="${title}" flushWith="record">
+                    <data name="title" source="mainTitle">
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="diac"/>
+                        <setreplace map="numberLiteral"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
+                    <data name="remainderOfTitle" source="remainderOfTitle">
+                        <blacklist map="noiseRemainderTitle"></blacklist>
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                        <regexp match="^(.*)$" format=" ${1} "/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="numberLiteral"/>
+                        <setreplace map="RAK_abkürz"/>
+                        <setreplace map="diac"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="material" source="material"/>
             <combine name="creator" value="${creator}" sameEntity="true">
                 <data source="creatorMeeting.rel">
-                    <blacklist>
-                        <entry name="pbl"/>
-                        <entry name="prn"/>
-                        <entry name="mfp"/>
-                        <entry name="pma"/>
-                    </blacklist>
+                    <blacklist map="noiseCreatorRel"></blacklist>
                 </data>
                 <data name="creator" source="creatorMeeting.name"/>
                 <postprocess>
@@ -457,17 +856,110 @@
                     <setreplace map="diac"/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
                     <setreplace map="numberLiteral"/>
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-
                 </postprocess>
             </combine>
         </combine>
 
+        <combine name="titleCreatorMeetingAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+            <data source="material">
+                <blacklist>
+                    <entry name="continuing resource"/>
+                    <entry name="musicNotated"/>
+                    <entry name="musicSound"/>
+                </blacklist>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="mainTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorMeetingAddedEntry.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
+            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+                <combine name="title" value="${title}" flushWith="record">
+                    <data name="title" source="mainTitle">
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="diac"/>
+                        <setreplace map="numberLiteral"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
+                    <data name="remainderOfTitle" source="remainderOfTitle">
+                        <blacklist map="noiseRemainderTitle"></blacklist>
+                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                        <regexp match="^(.*)$" format=" ${1} "/>
+                    </data>
+                    <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="numberLiteral"/>
+                        <setreplace map="RAK_abkürz"/>
+                        <setreplace map="diac"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                    </postprocess>
+                </combine>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="material" source="material"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorMeetingAddedEntry.rel">
+                    <blacklist map="noiseCreatorRel"></blacklist>
+                </data>
+                <data name="creator" source="creatorMeetingAddedEntry.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                </postprocess>
+            </combine>
+        </combine>
 
-        <combine name="uniformTitleCreatorMeeting" value="${title}-${creator}-${volume}-${publicationType}" reset="false">
+        <combine name="uniformTitleCreatorMeeting" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
@@ -480,32 +972,42 @@
             <none name="collection" value="none-fired">
                 <data source="titleInCollection"/>
             </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="uniformTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorMeeting.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
             <combine name="title" value="${title}" flushWith="record">
-                <data name="title" source="uniformTitle"/>
+                <data name="title" source="uniformTitle">
+                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                </data>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
                     <setreplace map="diac"/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="\sbis\s" with=""/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
-                    <setreplace map="numberLiteral"/>
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-                    <replace pattern="\s?bis\s?" with="-"/>
                     <substring end="50"/>
                 </postprocess>
             </combine>
             <data name="volume" source="@volume"/>
-            <data name="publicationType" source="@publicationType" />
+            <data name="material" source="material"/>
             <combine name="creator" value="${creator}" sameEntity="true">
                 <data source="creatorMeeting.rel">
-                    <blacklist>
-                        <entry name="pbl"/>
-                        <entry name="prn"/>
-                        <entry name="mfp"/>
-                        <entry name="pma"/>
-                    </blacklist>
+                    <blacklist map="noiseCreatorRel"></blacklist>
                 </data>
                 <data name="creator" source="creatorMeeting.name"/>
                 <postprocess>
@@ -514,15 +1016,84 @@
                     <setreplace map="diac"/>
                     <replace pattern="[\u0300-\u036F]" with=""/>
                     <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
                     <replace pattern="\u030E" with=""/>
                     <setreplace map="numberLiteral"/>
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-
                 </postprocess>
             </combine>
         </combine>
 
+        <combine name="uniformTitleCreatorMeetingAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+            <data source="material">
+                <blacklist>
+                    <entry name="continuing resource"/>
+                    <entry name="musicNotated"/>
+                    <entry name="musicSound"/>
+                </blacklist>
+            </data>
+            <data source="multipartLevel">
+                <blacklist>
+                    <entry name="set"/>
+                    <entry name="part-dep"/>
+                </blacklist>
+            </data>
+            <none name="collection" value="none-fired">
+                <data source="titleInCollection"/>
+            </none>
+            <none name="partOf" value="none-fired">
+                <data source="partOf"/>
+            </none>
+            <data source="uniformTitle">
+                <blacklist map="noiseTitles"></blacklist>
+            </data>
+            <data source="creatorMeetingAddedEntry.name">
+                <blacklist>
+                    <entry name="unbekannt"/>
+                    <entry name="..."/>
+                </blacklist>
+            </data>
+            <combine name="title" value="${title}" flushWith="record">
+                <data name="title" source="uniformTitle">
+                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                </data>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="\sbis\s" with=""/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                    <substring end="50"/>
+                </postprocess>
+            </combine>
+            <data name="volume" source="@volume"/>
+            <data name="material" source="material"/>
+            <combine name="creator" value="${creator}" sameEntity="true">
+                <data source="creatorMeetingAddedEntry.rel">
+                    <blacklist map="noiseCreatorRel"></blacklist>
+                </data>
+                <data name="creator" source="creatorMeetingAddedEntry.name"/>
+                <postprocess>
+                    <case to="lower"/>
+                    <normalize-utf8/>
+                    <setreplace map="diac"/>
+                    <replace pattern="[\u0300-\u036F]" with=""/>
+                    <replace pattern="\u0098.*\u009C" with=""/>
+                    <replace pattern="\[.*\]" with=""/>
+                    <replace pattern="\u030E" with=""/>
+                    <setreplace map="numberLiteral"/>
+                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                    <replace pattern="\W" with=""/>
+                </postprocess>
+            </combine>
+        </combine>
     </rules>
     <maps>
         <map name="namer">
@@ -570,7 +1141,874 @@
             <entry name=" elfter " value="11."/>
             <entry name=" zwoelfter " value="12."/>
             <entry name=" the " value=" "/>
+            <entry name=" und " value=" u "/>
+            <entry name=" + " value=" u "/>
+            <entry name="&amp;" value=" u "/>
+            <entry name=" and " value=" u "/>
         </map>
+        <!--<filemap name="RAK_abkürz" files="$home/aen/vorndran/workspace-cg/cluster/ClusterSep18/maps/RAK_abkürz.txt" separator=";"/>-->
+
+        <map name="RAK_abkürz">
+            <entry name=" der " value=" "/>
+            <entry name=" die " value=" "/>
+            <entry name=" das " value=" "/>
+            <entry name=" des " value=" "/>
+            <entry name=" dem " value=" "/>
+            <entry name=" den " value=" "/>
+            <entry name=" d. " value=" "/>
+            <entry name=" ein " value=" "/>
+            <entry name=" e. " value=" "/>
+            <entry name=" eine " value=" "/>
+            <entry name=" einer " value=" "/>
+            <entry name=" a " value=" "/>
+            <entry name=" an " value=" "/>
+            <entry name=" le " value=" "/>
+            <entry name=" la " value=" "/>
+            <entry name=" les " value=" "/>
+            <entry name=" abbildung " value=" abb "/>
+            <entry name=" abbildungen " value=" abb "/>
+            <entry name=" abdruck " value=" abdr "/>
+            <entry name=" abdrucke " value=" abdr "/>
+            <entry name=" abdruckes " value=" abdr "/>
+            <entry name=" abgeändert " value=" abgeänd "/>
+            <entry name=" abgeänderte " value=" abgeänd "/>
+            <entry name=" abgeändertes " value=" abgeänd "/>
+            <entry name=" abgeänderter " value=" abgeänd "/>
+            <entry name=" abgedruckt " value=" abgedr "/>
+            <entry name=" abgedrucktes " value=" abgedr "/>
+            <entry name=" abgedruckter " value=" abgedr "/>
+            <entry name=" abgedruckte " value=" abgedr "/>
+            <entry name=" abgedruckten " value=" abgedr "/>
+            <entry name=" abgedrucktem " value=" abgedr "/>
+            <entry name=" abhandlung " value=" abh "/>
+            <entry name=" abhandlungen " value=" abh "/>
+            <entry name=" absatz " value=" abs "/>
+            <entry name=" absatzes  " value=" abs "/>
+            <entry name=" absätze " value=" abs "/>
+            <entry name=" absätzen " value=" abs "/>
+            <entry name=" abschnitt " value=" abschn "/>
+            <entry name=" abschnitte " value=" abschn "/>
+            <entry name=" abschnitten " value=" abschn "/>
+            <entry name=" abschnitts " value=" abschn "/>
+            <entry name=" abschnittes " value=" abschn "/>
+            <entry name=" abteilung " value=" abt "/>
+            <entry name=" abteilungen " value=" abt "/>
+            <entry name=" akademie " value=" akad "/>
+            <entry name=" akadem. " value=" akad "/>
+            <entry name=" akademisch " value=" akad "/>
+            <entry name=" akademische " value=" akad "/>
+            <entry name=" akademischer " value=" akad "/>
+            <entry name=" akademischen " value=" akad "/>
+            <entry name=" akademisches " value=" akad "/>
+            <entry name=" akademischem " value=" akad "/>
+            <entry name=" alfabetisch " value=" alf "/>
+            <entry name=" alfab. " value=" alf "/>
+            <entry name=" alfabetische " value=" alf "/>
+            <entry name=" alfabetisches " value=" alf "/>
+            <entry name=" alfabetischer " value=" alf "/>
+            <entry name=" alfabetischen " value=" alf "/>
+            <entry name=" alfabetischem " value=" alf "/>
+            <entry name=" allgemein " value=" allg "/>
+            <entry name=" allgemeine " value=" allg "/>
+            <entry name=" allgemeiner " value=" allg "/>
+            <entry name=" allgemeines " value=" allg "/>
+            <entry name=" allgemeinen " value=" allg "/>
+            <entry name=" allgemeinem " value=" allg "/>
+            <entry name=" alphabetisch " value=" alph "/>
+            <entry name=" alphab. " value=" alph "/>
+            <entry name=" alphabetische " value=" alph "/>
+            <entry name=" alphabetischer " value=" alph "/>
+            <entry name=" alphabetisches " value=" alph "/>
+            <entry name=" alphabetischen " value=" alph "/>
+            <entry name=" alphabetischem " value=" alph "/>
+            <entry name=" amerikanisch " value=" amerikan "/>
+            <entry name=" amerikanische " value=" amerikan "/>
+            <entry name=" amerikanisches " value=" amerikan "/>
+            <entry name=" amerikanischer " value=" amerikan "/>
+            <entry name=" amerikanischen " value=" amerikan "/>
+            <entry name=" amerikanischem " value=" amerikan "/>
+            <entry name=" angeblich " value=" angebl "/>
+            <entry name=" angebliche " value=" angebl "/>
+            <entry name=" angeblichen " value=" angebl "/>
+            <entry name=" angebliches " value=" angebl "/>
+            <entry name=" anhang " value=" anh "/>
+            <entry name=" anhangs " value=" anh "/>
+            <entry name=" anhanges " value=" anh "/>
+            <entry name=" anlage " value=" anl "/>
+            <entry name=" anlagen " value=" anl "/>
+            <entry name=" anläßlich " value=" anläßl "/>
+            <entry name=" anmerkung " value=" anm "/>
+            <entry name=" anmerkungen " value=" anm "/>
+            <entry name=" anstalt " value=" anst "/>
+            <entry name=" appendix " value=" app "/>
+            <entry name=" artikel " value=" art "/>
+            <entry name=" artikels " value=" art "/>
+            <entry name=" association " value=" assoc "/>
+            <entry name=" associations " value=" assoc "/>
+            <entry name=" auflage " value=" aufl "/>
+            <entry name=" ausgabe " value=" ausg "/>
+            <entry name=" ausgewählte " value=" ausgew "/>
+            <entry name=" ausgewählter " value=" ausgew "/>
+            <entry name=" ausgewähltes " value=" ausgew "/>
+            <entry name=" ausgewählten " value=" ausgew "/>
+            <entry name=" auswahl " value=" ausw "/>
+            <entry name=" autorisiert " value=" autoris "/>
+            <entry name=" autorisierte " value=" autoris "/>
+            <entry name=" autorisiertes " value=" autoris "/>
+            <entry name=" autorisierten " value=" autoris "/>
+            <entry name=" band " value=" bd "/>
+            <entry name=" bände " value=" bd "/>
+            <entry name=" bandes " value=" bd "/>
+            <entry name=" begründet " value=" begr "/>
+            <entry name=" begründetes " value=" begr "/>
+            <entry name=" begründeter " value=" begr "/>
+            <entry name=" begründete " value=" begr "/>
+            <entry name=" beigabe " value=" beig "/>
+            <entry name=" beigaben " value=" beig "/>
+            <entry name=" beigefügt " value=" beigef "/>
+            <entry name=" beigefügte " value=" beigef "/>
+            <entry name=" beigefügten " value=" beigef "/>
+            <entry name=" beigefügtes " value=" beigef "/>
+            <entry name=" beiheft " value=" beiheft "/>
+            <entry name=" beihefte " value=" beih "/>
+            <entry name=" beiheftes " value=" beih "/>
+            <entry name=" beilage " value=" beil "/>
+            <entry name=" beilagen " value=" beil "/>
+            <entry name=" beispiel " value=" bsp "/>
+            <entry name=" beisp " value=" bsp "/>
+            <entry name=" beispielen " value=" bsp "/>
+            <entry name=" beitrag " value=" beitr "/>
+            <entry name=" beiträge " value=" beitr "/>
+            <entry name=" beiträgen " value=" beitr "/>
+            <entry name=" berücksichtigg. " value=" berücks "/>
+            <entry name=" berücksichtigng. " value=" berücks "/>
+            <entry name=" besondere berücksichtigung " value=" besberücks "/>
+            <entry name=" besonderer berücksichtigung " value=" besberücks "/>
+            <entry name=" besonderen berücksichtigung " value=" besberücks "/>
+            <entry name=" betrachtgn. " value=" betracht "/>
+            <entry name=" betrachtungen " value=" betracht "/>
+            <entry name=" betrachtung " value=" betracht "/>
+            <entry name=" betreffend " value=" betr "/>
+            <entry name=" betreffs " value=" betr "/>
+            <entry name=" betreffende " value=" betr "/>
+            <entry name=" betreffenden " value=" betr "/>
+            <entry name=" betreffender " value=" betr "/>
+            <entry name=" beziehungsweise " value=" bzw "/>
+            <entry name=" bibliographie " value=" bibliogr "/>
+            <entry name=" biographie " value=" biogr "/>
+            <entry name=" biographisch " value=" biogr "/>
+            <entry name=" biographische " value=" biogr "/>
+            <entry name=" biographischen " value=" biogr "/>
+            <entry name=" biographischer " value=" biogr "/>
+            <entry name=" blatt " value=" bl "/>
+            <entry name=" blätter " value=" bl "/>
+            <entry name=" christlich " value=" christl "/>
+            <entry name=" christliche " value=" christl "/>
+            <entry name=" christlicher " value=" christl "/>
+            <entry name=" christliches " value=" christl "/>
+            <entry name=" christlichen " value=" christl "/>
+            <entry name=" christlichem " value=" christl "/>
+            <entry name=" collection " value=" coll "/>
+            <entry name=" collections " value=" coll "/>
+            <entry name=" compiled " value=" comp "/>
+            <entry name=" corporation " value=" corp "/>
+            <entry name=" corrected " value=" corr "/>
+            <entry name=" correction " value=" corr "/>
+            <entry name=" corrections " value=" corr "/>
+            <entry name=" dargebracht " value=" dargebr "/>
+            <entry name=" dargebrachte " value=" dargebr "/>
+            <entry name=" dargebrachtes " value=" dargebr "/>
+            <entry name=" dargebrachter " value=" dargebr "/>
+            <entry name=" dargestellt " value=" darst "/>
+            <entry name=" dargest. " value=" darst "/>
+            <entry name=" darstellungen  " value=" darst "/>
+            <entry name=" darstellung  " value=" darst "/>
+            <entry name=" das heißt " value=" dh "/>
+            <entry name=" dasselbe " value=" dass "/>
+            <entry name=" datiert " value=" dat "/>
+            <entry name=" datierte " value=" dat "/>
+            <entry name=" datiertes " value=" dat "/>
+            <entry name=" datierter " value=" dat "/>
+            <entry name=" datiertem " value=" dat "/>
+            <entry name=" demographisch " value=" demograf "/>
+            <entry name=" demographische " value=" demograf "/>
+            <entry name=" demographischer " value=" demograf "/>
+            <entry name=" demographisches " value=" demograf "/>
+            <entry name=" demographischen " value=" demograf "/>
+            <entry name=" demographischem " value=" demograf "/>
+            <entry name=" demografisch " value=" demograf "/>
+            <entry name=" demografische " value=" demograf "/>
+            <entry name=" demografisches " value=" demograf "/>
+            <entry name=" demografischer " value=" demograf "/>
+            <entry name=" demografischen " value=" demograf "/>
+            <entry name=" demografischen " value=" demograf "/>
+            <entry name=" demokratisch " value=" demokrat "/>
+            <entry name=" demokratische " value=" demokrat "/>
+            <entry name=" demokratischer " value=" demokrat "/>
+            <entry name=" demokratisches " value=" demokrat "/>
+            <entry name=" demokratischen " value=" demokrat "/>
+            <entry name=" demokratischem " value=" demokrat "/>
+            <entry name=" department " value=" dep "/>
+            <entry name=" departments " value=" dep "/>
+            <entry name=" departmental " value=" dep "/>
+            <entry name="deutsch " value="dt "/>
+            <entry name="deutschen " value="dt "/>
+            <entry name="deutsche " value="dt "/>
+            <entry name="deutsches " value="dt "/>
+            <entry name="deutscher " value="dt "/>
+            <entry name="deutschem " value="dt "/>
+            <entry name=" diagramm " value=" diagr "/>
+            <entry name=" diagramme " value=" diagr "/>
+            <entry name=" diagramms " value=" diagr "/>
+            <entry name=" dissertation " value=" diss "/>
+            <entry name=" division " value=" div "/>
+            <entry name=" divisions " value=" div "/>
+            <entry name=" druck " value=" dr "/>
+            <entry name=" duchgesehen " value=" durchges "/>
+            <entry name=" duchgesehene " value=" durchges "/>
+            <entry name=" duchgesehenes " value=" durchges "/>
+            <entry name=" duchgesehener " value=" durchges "/>
+            <entry name=" duchgesehenem " value=" durchges "/>
+            <entry name=" edited " value=" ed "/>
+            <entry name=" ehemalig " value=" ehem "/>
+            <entry name=" ehemalige " value=" ehem "/>
+            <entry name=" ehemaliger " value=" ehem "/>
+            <entry name=" ehemaliges " value=" ehem "/>
+            <entry name=" ehemaligem " value=" ehem "/>
+            <entry name=" ehrenhalber " value=" eh "/>
+            <entry name=" einführung " value=" einf "/>
+            <entry name=" einführungen " value=" einf "/>
+            <entry name=" eingedruckt " value=" eingedr "/>
+            <entry name=" eingedruckte " value=" eingedr "/>
+            <entry name=" eingedruckter " value=" eingedr "/>
+            <entry name=" eingedrucktes " value=" eingedr "/>
+            <entry name=" eingedrucktem " value=" eingedr "/>
+            <entry name=" einleitung " value=" einl "/>
+            <entry name=" einleitungen " value=" einl "/>
+            <entry name=" einleitend " value=" einl "/>
+            <entry name=" einleitende " value=" einl "/>
+            <entry name=" einleitender " value=" einl "/>
+            <entry name=" einleitendem " value=" einl "/>
+            <entry name=" einschließlich " value=" einschl "/>
+            <entry name=" einschließl. " value=" einschl "/>
+            <entry name=" einschließend " value=" einschl "/>
+            <entry name=" einschließende " value=" einschl "/>
+            <entry name=" einschließendem " value=" einschl "/>
+            <entry name=" einschließender " value=" einschl "/>
+            <entry name=" enthält " value=" enth "/>
+            <entry name=" enthaltend " value=" enth "/>
+            <entry name=" erarbeitet " value=" erarb "/>
+            <entry name=" erarbeitete " value=" erarb "/>
+            <entry name=" erarbeiteter " value=" erarb "/>
+            <entry name=" erarbeiteten " value=" erarb "/>
+            <entry name=" ergänzung " value=" erg "/>
+            <entry name=" ergänzungen " value=" erg "/>
+            <entry name=" erklärt " value=" erkl "/>
+            <entry name=" erklärte " value=" erkl "/>
+            <entry name=" erklärten " value=" erkl "/>
+            <entry name=" erklärtes " value=" erkl "/>
+            <entry name=" erläuterung " value=" erl "/>
+            <entry name=" erläuterungen " value=" erl "/>
+            <entry name=" erläutert " value=" erl "/>
+            <entry name=" erläuterter " value=" erl "/>
+            <entry name=" erläutertes " value=" erl "/>
+            <entry name=" erläuterte " value=" erl "/>
+            <entry name=" erstausgabe " value=" erstausg "/>
+            <entry name=" erweitert " value=" erw "/>
+            <entry name=" erweiterte " value=" erw "/>
+            <entry name=" erweitertes " value=" erw "/>
+            <entry name=" erweiterte " value=" erw "/>
+            <entry name=" erweiterung " value=" erw "/>
+            <entry name=" erweiterungen " value=" erw "/>
+            <entry name=" erzählung " value=" erzähl "/>
+            <entry name=" erzählungen " value=" erzähl "/>
+            <entry name=" erzählg " value=" erzähl "/>
+            <entry name=" erzählgn " value=" erzähl "/>
+            <entry name=" europäisch " value=" europ "/>
+            <entry name=" europäische " value=" europ "/>
+            <entry name=" europäischer " value=" europ "/>
+            <entry name=" europäischen " value=" europ "/>
+            <entry name=" europäischem " value=" europ "/>
+            <entry name=" evangelisch " value=" evang "/>
+            <entry name=" evangelische " value=" evang "/>
+            <entry name=" evangelischer " value=" evang "/>
+            <entry name=" evangelisches " value=" evang "/>
+            <entry name=" evangelischem " value=" evang "/>
+            <entry name=" evangelisch-reformiert " value=" evang-ref "/>
+            <entry name=" evangelisch-reformierte " value=" evang-ref "/>
+            <entry name=" evangelisch-reformierter " value=" evang-ref "/>
+            <entry name=" evangelisch-reformiertes " value=" evang-ref "/>
+            <entry name=" evangelisch-reformiertem " value=" evang-ref "/>
+            <entry name=" exemplar " value=" ex "/>
+            <entry name=" facsimile " value=" facs "/>
+            <entry name=" faksimile " value=" faks "/>
+            <entry name=" fakultät " value=" fak "/>
+            <entry name=" fakultäten " value=" fak "/>
+            <entry name=" farbig " value=" farb "/>
+            <entry name=" farbige " value=" farb "/>
+            <entry name=" farbiger " value=" farb "/>
+            <entry name=" farbiges " value=" farb "/>
+            <entry name=" farbigen " value=" farb "/>
+            <entry name=" farbigem " value=" farb "/>
+            <entry name=" figur " value=" fig "/>
+            <entry name=" figuren " value=" fig "/>
+            <entry name=" forschungen " value=" forschung "/>
+            <entry name=" forschg. " value=" forschung "/>
+            <entry name=" forschng. " value=" forschung "/>
+            <entry name=" fortgeführt " value=" fortgef "/>
+            <entry name=" fortgeführte " value=" fortgef "/>
+            <entry name=" fortgeführtes " value=" fortgef "/>
+            <entry name=" fortgeführter " value=" fortgef "/>
+            <entry name=" fortgeführten " value=" fortgef "/>
+            <entry name=" fortgeführtem " value=" fortgef "/>
+            <entry name=" fortgesetzt " value=" fortges "/>
+            <entry name=" fortgesetzte " value=" fortges "/>
+            <entry name=" fortgesetzter " value=" fortges "/>
+            <entry name=" fortgesetztes " value=" fortges "/>
+            <entry name=" fortgesetzten " value=" fortges "/>
+            <entry name=" fortgesetztem " value=" fortges "/>
+            <entry name=" fortsetzung " value=" forts "/>
+            <entry name=" fortsetzungen " value=" forts "/>
+            <entry name=" fotografie " value=" fotogr "/>
+            <entry name=" fotographie " value=" fotogr "/>
+            <entry name=" fotografisch " value=" fotogr "/>
+            <entry name=" fotografische " value=" fotogr "/>
+            <entry name=" fotografischer " value=" fotogr "/>
+            <entry name=" fotografischen " value=" fotogr "/>
+            <entry name=" fotografisches " value=" fotogr "/>
+            <entry name=" fotografischem " value=" fotogr "/>
+            <entry name=" fotographisch " value=" fotogr "/>
+            <entry name=" fotographische " value=" fotogr "/>
+            <entry name=" fotographischer " value=" fotogr "/>
+            <entry name=" fotographisches " value=" fotogr "/>
+            <entry name=" fotographischen " value=" fotogr "/>
+            <entry name=" fotographischem " value=" fotogr "/>
+            <entry name=" fragment " value=" fragm "/>
+            <entry name=" freiherr " value=" frhr "/>
+            <entry name=" für das jahr " value=" fdj "/>
+            <entry name=" gebrüder " value=" gebr "/>
+            <entry name=" gebunden " value=" geb "/>
+            <entry name=" gebundene " value=" geb "/>
+            <entry name=" gebundenes " value=" geb "/>
+            <entry name=" gebundener " value=" geb "/>
+            <entry name=" gebundenen " value=" geb "/>
+            <entry name=" gebundenem " value=" geb "/>
+            <entry name=" gedruckt " value=" gedr "/>
+            <entry name=" gedruckte " value=" gedr "/>
+            <entry name=" gedrucktes " value=" gedr "/>
+            <entry name=" gedruckter " value=" gedr "/>
+            <entry name=" gedrucktem " value=" gedr "/>
+            <entry name=" gedruckten " value=" gedr "/>
+            <entry name=" gegründet " value=" gegr "/>
+            <entry name=" gegründete " value=" gegr "/>
+            <entry name=" gegründeter " value=" gegr "/>
+            <entry name=" gegründetes " value=" gegr "/>
+            <entry name=" gegründetem " value=" gegr "/>
+            <entry name=" gegründeten " value=" gegr "/>
+            <entry name=" geheftet " value=" geh "/>
+            <entry name=" geheftete " value=" geh "/>
+            <entry name=" geheftetes " value=" geh "/>
+            <entry name=" gehefteter " value=" geh "/>
+            <entry name=" geheftetem " value=" geh "/>
+            <entry name=" gehefteten " value=" geh "/>
+            <entry name=" geleitwort " value=" geleitw "/>
+            <entry name=" geleitworte " value=" geleitw "/>
+            <entry name=" geleitworten " value=" geleitw "/>
+            <entry name=" geleitwortes " value=" geleitw "/>
+            <entry name=" gesammelt " value=" ges "/>
+            <entry name=" gesammelte " value=" ges "/>
+            <entry name=" gesammelter " value=" ges "/>
+            <entry name=" gesammeltes " value=" ges "/>
+            <entry name=" gesammelten " value=" ges "/>
+            <entry name=" gesammeltem " value=" ges "/>
+            <entry name=" gesamtwerk " value=" gesamtw "/>
+            <entry name=" geschichtlich " value=" gesch "/>
+            <entry name=" geschichtliche " value=" gesch "/>
+            <entry name=" geschichtlicher " value=" gesch "/>
+            <entry name=" geschichtliches " value=" gesch "/>
+            <entry name=" geschichtlichen " value=" gesch "/>
+            <entry name=" geschichtlichem " value=" gesch "/>
+            <entry name=" gesellschaft " value=" ges "/>
+            <entry name=" gesellschaftlich " value=" gesellsch "/>
+            <entry name=" gesellschaftliche " value=" gesellsch "/>
+            <entry name=" gesellschaftlicher " value=" gesellsch "/>
+            <entry name=" gesellschaftliches " value=" gesellsch "/>
+            <entry name=" gesellschaftlichen " value=" gesellsch "/>
+            <entry name=" gesellschaftlichem " value=" gesellsch "/>
+            <entry name=" gestochen " value=" gest "/>
+            <entry name=" gestochene " value=" gest "/>
+            <entry name=" gestochener " value=" gest "/>
+            <entry name=" gestochenes " value=" gest "/>
+            <entry name=" gestochenem " value=" gest "/>
+            <entry name=" gestochenen " value=" gest "/>
+            <entry name=" getrennte zählung " value=" getrzählung "/>
+            <entry name=" gezählt blätter " value=" gezBl "/>
+            <entry name=" graphisch " value=" graph "/>
+            <entry name=" graphische " value=" graph "/>
+            <entry name=" graphischer " value=" graph "/>
+            <entry name=" graphisches " value=" graph "/>
+            <entry name=" graphischem " value=" graph "/>
+            <entry name=" graphischen " value=" graph "/>
+            <entry name=" habilitationsschrift " value=" habilschr "/>
+            <entry name=" handschrift " value=" hs "/>
+            <entry name=" handschriften " value=" hs "/>
+            <entry name=" hauptwerk " value=" hauptw "/>
+            <entry name=" humanistisch " value=" humanist "/>
+            <entry name=" humanistische " value=" humanist "/>
+            <entry name=" humanistischer " value=" humanist "/>
+            <entry name=" humanistisches " value=" humanist "/>
+            <entry name=" humanistischen " value=" humanist "/>
+            <entry name=" humanistischem " value=" humanist "/>
+            <entry name=" heft " value=" h "/>
+            <entry name=" herausgeber " value=" hrsg "/>
+            <entry name="historisch " value="hist "/>
+            <entry name="historische " value="hist "/>
+            <entry name="historisches " value="hist "/>
+            <entry name="historischer " value="hist "/>
+            <entry name="historischen " value="hist "/>
+            <entry name="historischem " value="hist "/>
+            <entry name=" hochschule " value=" hochsch "/>
+            <entry name=" holzschnitt " value=" holzschn "/>
+            <entry name=" illustration " value=" ill "/>
+            <entry name=" illustrationen " value=" ill "/>
+            <entry name=" including " value=" incl "/>
+            <entry name=" inhaltsverzeichnis " value=" inhverz "/>
+            <entry name=" inhalt " value=" inh "/>
+            <entry name=" inhalte " value=" inh "/>
+            <entry name=" inhalts " value=" inh "/>
+            <entry name=" inhaltes " value=" inh "/>
+            <entry name=" insbesondere " value=" insb "/>
+            <entry name=" insbes. " value=" insb "/>
+            <entry name=" insgesamt " value=" inges "/>
+            <entry name=" institutionell " value=" inst "/>
+            <entry name=" institutionelle " value=" inst "/>
+            <entry name=" institutioneller " value=" inst "/>
+            <entry name=" institutionelles " value=" inst "/>
+            <entry name=" institutionellem " value=" inst "/>
+            <entry name=" institutionellen " value=" inst "/>
+            <entry name=" institut " value=" inst "/>
+            <entry name=" insitituts " value=" inst "/>
+            <entry name=" institutes " value=" inst "/>
+            <entry name=" international " value=" internat "/>
+            <entry name=" internationalen " value=" internat "/>
+            <entry name=" internationalem " value=" internat "/>
+            <entry name=" internationales " value=" internat "/>
+            <entry name=" internationale " value=" internat "/>
+            <entry name=" introduction " value=" introd "/>
+            <entry name=" jährlich " value=" jährl "/>
+            <entry name=" jährliche " value=" jährl "/>
+            <entry name=" jährlicher " value=" jährl "/>
+            <entry name=" jährliches " value=" jährl "/>
+            <entry name=" jährlichen " value=" jährl "/>
+            <entry name=" jährlichem " value=" jährl "/>
+            <entry name=" jahrgang " value=" jg "/>
+            <entry name=" jahrgangs " value=" jg "/>
+            <entry name=" jahrhundert " value=" jh "/>
+            <entry name=" jahrhunderts " value=" jh "/>
+            <entry name=" jahrh. " value=" jh "/>
+            <entry name=" juristisch " value=" jur "/>
+            <entry name=" juristisch " value=" jur "/>
+            <entry name=" juristisches " value=" jur "/>
+            <entry name=" juristischer " value=" jur "/>
+            <entry name=" juristischen " value=" jur "/>
+            <entry name=" juristischem " value=" jur "/>
+            <entry name=" kalender " value=" kal "/>
+            <entry name=" kapitel " value=" kap "/>
+            <entry name=" kapitels " value=" kap "/>
+            <entry name=" kapiteln " value=" kap "/>
+            <entry name=" karte " value=" kt "/>
+            <entry name=" karten " value=" kt "/>
+            <entry name=" kartoniert " value=" kart "/>
+            <entry name=" kartonierte " value=" kart "/>
+            <entry name=" kartoniertes " value=" kart "/>
+            <entry name=" kartonierter " value=" kart "/>
+            <entry name=" kartonierten " value=" kart "/>
+            <entry name=" kartoniertem " value=" kart "/>
+            <entry name=" katholisch " value=" kath "/>
+            <entry name=" katholische " value=" kath "/>
+            <entry name=" katholischer " value=" kath "/>
+            <entry name=" katholisches " value=" kath "/>
+            <entry name=" katholischen " value=" kath "/>
+            <entry name=" katholischem " value=" kath "/>
+            <entry name=" kirchlich " value=" kirchl "/>
+            <entry name=" kirchliche " value=" kirchl "/>
+            <entry name=" kirchlicher " value=" kirchl "/>
+            <entry name=" kirchliches " value=" kirchl "/>
+            <entry name=" kirchlichen " value=" kirchl "/>
+            <entry name=" kirchlichem " value=" kirchl "/>
+            <entry name=" klasse " value=" kl "/>
+            <entry name=" komponiert " value=" komp "/>
+            <entry name=" komponierte " value=" komp "/>
+            <entry name=" komponierter " value=" komp "/>
+            <entry name=" komponiertes " value=" komp "/>
+            <entry name=" komponiertem " value=" komp "/>
+            <entry name=" komponierten " value=" komp "/>
+            <entry name="klinisch " value="klin "/>
+            <entry name="klinische " value="klin "/>
+            <entry name="klinischer " value="klin "/>
+            <entry name="klinisches " value="klin "/>
+            <entry name="klinischen " value="klin "/>
+            <entry name="klinischem " value="klin "/>
+            <entry name=" komponiert " value=" komp "/>
+            <entry name=" komponierte " value=" komp "/>
+            <entry name=" komponierter " value=" komp "/>
+            <entry name=" komponiertes " value=" komp "/>
+            <entry name=" komponiertem " value=" komp "/>
+            <entry name=" komponierten " value=" komp "/>
+            <entry name=" kritisch " value=" krit "/>
+            <entry name=" kritische " value=" krit "/>
+            <entry name=" kritisches " value=" krit "/>
+            <entry name=" kritischer " value=" krit "/>
+            <entry name=" kritischen " value=" krit "/>
+            <entry name=" kritischem " value=" krit "/>
+            <entry name=" kurzgefasst " value=" kurzgef "/>
+            <entry name=" kurzgefaßt " value=" kurzgef "/>
+            <entry name=" leinwand " value=" lw "/>
+            <entry name=" leitfaden " value=" leitf "/>
+            <entry name=" leitfadens " value=" leitf "/>
+            <entry name=" literaturverzeichnis " value=" literaturverz "/>
+            <entry name=" lutherisch " value=" luth "/>
+            <entry name=" lutherische " value=" luth "/>
+            <entry name=" lutherischer " value=" luth "/>
+            <entry name=" lutherisches " value=" luth "/>
+            <entry name=" lutherischen " value=" luth "/>
+            <entry name=" lutherischem " value=" luth "/>
+            <entry name=" manuskript " value=" ms "/>
+            <entry name=" manuskripte " value=" ms "/>
+            <entry name=" manuskriptes " value=" ms "/>
+            <entry name=" manuskripts " value=" ms "/>
+            <entry name="mathematisch " value="math "/>
+            <entry name="mathematische " value="math "/>
+            <entry name="mathematisches " value="math "/>
+            <entry name="mathematischer " value="math "/>
+            <entry name="mathematischen " value="math "/>
+            <entry name="mathematischem " value="math "/>
+            <entry name="mathem. " value="math "/>
+            <entry name="medizinisch " value="med "/>
+            <entry name="medizinische " value="med "/>
+            <entry name="medizinischer " value="med "/>
+            <entry name="medizinisches " value="med "/>
+            <entry name="medizinischen " value="med "/>
+            <entry name="medizinischem " value="med "/>
+            <entry name=" mitgeteilt " value=" mitget "/>
+            <entry name=" mitgeteilte " value=" mitget "/>
+            <entry name=" mitgeteilter " value=" mitget "/>
+            <entry name=" mitgeteiltes " value=" mitget "/>
+            <entry name=" mitgeteilten " value=" mitget "/>
+            <entry name=" mitgeteiltem " value=" mitget "/>
+            <entry name=" nachdruck " value=" nachdr "/>
+            <entry name=" nachgedruckt " value=" nachgedr "/>
+            <entry name=" nachgedruckte " value=" nachgedr "/>
+            <entry name=" nachgedruckter " value=" nachgedr "/>
+            <entry name=" nachgedrucktes " value=" nachgedr "/>
+            <entry name=" nachgedruckten " value=" nachgedr "/>
+            <entry name=" nachgedrucktem " value=" nachgedr "/>
+            <entry name=" nachtrag " value=" nachtr "/>
+            <entry name=" nachwort " value=" nachw "/>
+            <entry name=" neudruck " value=" neudr "/>
+            <entry name=" nummer " value=" nr "/>
+            <entry name=" öffentlich " value=" öffentl "/>
+            <entry name=" öffentliche " value=" öffentl "/>
+            <entry name=" öffentlicher " value=" öffentl "/>
+            <entry name=" öffentliches " value=" öffentl "/>
+            <entry name=" öffentlichen " value=" öffentl "/>
+            <entry name=" öffentlichem " value=" öffentl "/>
+            <entry name="ökonomisch " value="ökonom "/>
+            <entry name="ökonomische " value="ökonom "/>
+            <entry name="ökonomisches " value="ökonom "/>
+            <entry name="ökonomischer " value="ökonom "/>
+            <entry name="ökonomischen " value="ökonom "/>
+            <entry name="ökonomischem " value="ökonom "/>
+            <entry name=" original " value=" orig "/>
+            <entry name=" originale " value=" orig "/>
+            <entry name=" originaler " value=" orig "/>
+            <entry name=" originales " value=" orig "/>
+            <entry name=" originalem " value=" orig "/>
+            <entry name=" originalen " value=" orig "/>
+            <entry name="pädagogisch " value="pädag "/>
+            <entry name="pädagogische " value="pädag "/>
+            <entry name="pädagogischer " value="pädag "/>
+            <entry name="pädagogisches " value="pädag "/>
+            <entry name="pädagogischen " value="pädag "/>
+            <entry name="pädagogischem " value="pädag "/>
+            <entry name=" part " value=" pt "/>
+            <entry name=" parts " value=" pt "/>
+            <entry name=" pts " value=" pt "/>
+            <entry name=" philologisch " value=" philol "/>
+            <entry name=" philologische " value=" philol "/>
+            <entry name=" philologischer " value=" philol "/>
+            <entry name=" philologisches " value=" philol "/>
+            <entry name=" philologischen " value=" philol "/>
+            <entry name=" philologischem " value=" philol "/>
+            <entry name=" philolog. " value=" philol "/>
+            <entry name=" philosophisch " value=" philos "/>
+            <entry name=" philosophische " value=" philos "/>
+            <entry name=" philosophischer " value=" philos "/>
+            <entry name=" philosophisches " value=" philos "/>
+            <entry name=" philosophischen " value=" philos "/>
+            <entry name=" philosophischem " value=" philos "/>
+            <entry name=" philosoph. " value=" philos "/>
+            <entry name=" photographie " value=" photogr "/>
+            <entry name=" photograph " value=" photogr "/>
+            <entry name=" photographisch " value=" photogr "/>
+            <entry name=" photographische " value=" photogr "/>
+            <entry name=" photographischer " value=" photogr "/>
+            <entry name=" photographisches " value=" photogr "/>
+            <entry name=" photographischem " value=" photogr "/>
+            <entry name=" photographischen " value=" photogr "/>
+            <entry name="politisch " value="polit "/>
+            <entry name="politische " value="polit "/>
+            <entry name="politischer " value="polit "/>
+            <entry name="politisches " value="polit "/>
+            <entry name="politischen " value="polit "/>
+            <entry name="politischem " value="polit "/>
+            <entry name=" porträt " value=" portr "/>
+            <entry name=" porträtiert " value=" portr "/>
+            <entry name=" porträtiertes " value=" portr "/>
+            <entry name=" porträtierte " value=" portr "/>
+            <entry name=" porträtiertem " value=" portr "/>
+            <entry name=" porträtierten " value=" portr "/>
+            <entry name=" porträtierter " value=" portr "/>
+            <entry name=" praktisch " value=" prakt "/>
+            <entry name=" praktische " value=" prakt "/>
+            <entry name=" praktischer " value=" prakt "/>
+            <entry name=" praktisches " value=" prakt "/>
+            <entry name=" praktischen " value=" prakt "/>
+            <entry name=" praktischem " value=" prakt "/>
+            <entry name=" publikation " value=" publ "/>
+            <entry name=" regierungsbezirk " value=" regbez "/>
+            <entry name=" regierungsbezirke " value=" regbez "/>
+            <entry name=" regierungsbezirkes " value=" regbez "/>
+            <entry name=" regierungsbezirks " value=" regbez "/>
+            <entry name=" register " value=" reg "/>
+            <entry name=" reproduktion " value=" reprod "/>
+            <entry name=" revidiert " value=" rev "/>
+            <entry name=" revidierte " value=" rev "/>
+            <entry name=" revidiertes " value=" rev "/>
+            <entry name=" revidierter " value=" rev "/>
+            <entry name=" revidierten " value=" rev "/>
+            <entry name=" revidiertem " value=" rev "/>
+            <entry name=" schrift " value=" schr "/>
+            <entry name=" schriften " value=" schr "/>
+            <entry name=" section " value=" sect "/>
+            <entry name=" sections " value=" sect "/>
+            <entry name=" sektion " value=" sekt "/>
+            <entry name=" sektionen " value=" sekt "/>
+            <entry name=" semester " value=" sem "/>
+            <entry name=" senior " value=" sen "/>
+            <entry name=" serie " value=" ser "/>
+            <entry name=" siehe " value=" s "/>
+            <entry name=" sogenannt " value=" sogen "/>
+            <entry name="sozialistisch " value="sozialist "/>
+            <entry name="sozialistische " value="sozialist "/>
+            <entry name="sozialistischer " value="sozialist "/>
+            <entry name="sozialistisches " value="sozialist "/>
+            <entry name="sozialistischen " value="sozialist "/>
+            <entry name="sozialistischem " value="sozialist "/>
+            <entry name=" spalte " value=" sp "/>
+            <entry name=" städtisch " value=" städt "/>
+            <entry name=" städtische " value=" städt "/>
+            <entry name=" städtisches " value=" städt "/>
+            <entry name=" städtischer " value=" städt "/>
+            <entry name=" städtischen " value=" städt "/>
+            <entry name=" städtischem " value=" städt "/>
+            <entry name=" statistisch " value=" stat "/>
+            <entry name=" statistische " value=" stat "/>
+            <entry name=" statistischer " value=" stat "/>
+            <entry name=" statistisches " value=" stat "/>
+            <entry name=" statistischen " value=" stat "/>
+            <entry name=" statistischem " value=" stat "/>
+            <entry name=" steuerlich " value=" steuerl "/>
+            <entry name=" steuerliche " value=" steuerl "/>
+            <entry name=" steuerlicher " value=" steuerl "/>
+            <entry name=" steuerliches " value=" steuerl "/>
+            <entry name=" steuerlichen " value=" steuerl "/>
+            <entry name=" steuerlichem " value=" steuerl "/>
+            <entry name=" supplement " value=" suppl "/>
+            <entry name=" tabelle " value=" tab "/>
+            <entry name=" tafel " value=" taf "/>
+            <entry name=" tausend " value=" tsd "/>
+            <entry name="technisch " value="techn "/>
+            <entry name="technische " value="techn "/>
+            <entry name="technischer " value="techn "/>
+            <entry name="technisches " value="techn "/>
+            <entry name="technischem " value="techn "/>
+            <entry name="technischen " value="techn "/>
+            <entry name=" traduction " value=" trad "/>
+            <entry name=" translation " value=" translation "/>
+            <entry name=" überarbeitet " value=" überarb "/>
+            <entry name=" überarbeitete " value=" überarb "/>
+            <entry name=" überarbeitetes " value=" überarb "/>
+            <entry name=" überarbeiteter " value=" überarb "/>
+            <entry name=" überarbeiteten " value=" überarb "/>
+            <entry name=" überarbeitetem " value=" überarb "/>
+            <entry name=" überreicht " value=" überr "/>
+            <entry name=" überreichte " value=" überr "/>
+            <entry name=" überreichter " value=" überr "/>
+            <entry name=" überreichtes " value=" überr "/>
+            <entry name=" überreichten " value=" überr "/>
+            <entry name=" überreichtem " value=" überr "/>
+            <entry name=" übersetzer " value=" übers "/>
+            <entry name=" übersetzt " value=" übers "/>
+            <entry name=" übersetzte " value=" übers "/>
+            <entry name=" übersetzter " value=" übers "/>
+            <entry name=" übersetztes " value=" übers "/>
+            <entry name=" übersetztem " value=" übers "/>
+            <entry name=" übersetzten " value=" übers "/>
+            <entry name=" übertragen " value=" übertr "/>
+            <entry name=" übertragene " value=" übertr "/>
+            <entry name=" übertragenes " value=" übertr "/>
+            <entry name=" übertragener " value=" übertr "/>
+            <entry name=" übertragenen " value=" übertr "/>
+            <entry name=" übertragenem " value=" übertr "/>
+            <entry name=" überwiegend " value=" überw "/>
+            <entry name=" überwiegende " value=" überw "/>
+            <entry name=" überwiegender " value=" überw "/>
+            <entry name=" überwiegendes " value=" überw "/>
+            <entry name=" überwiegenden " value=" überw "/>
+            <entry name=" überwiegendem " value=" überw "/>
+            <entry name=" umgearbeitet " value=" umgearb "/>
+            <entry name=" umgearbeitete " value=" umgearb "/>
+            <entry name=" umgearbeiteter " value=" umgearb "/>
+            <entry name=" umgearbeitetes " value=" umgearb "/>
+            <entry name=" umgearbeiteten " value=" umgearb "/>
+            <entry name=" umgearbeitetem " value=" umgearb "/>
+            <entry name=" und andere " value=" ua "/>
+            <entry name=" und anderes " value=" ua "/>
+            <entry name=" und so weiter " value=" usw "/>
+            <entry name=" universität " value=" univ "/>
+            <entry name=" universitäten " value=" univ "/>
+            <entry name=" universitär " value=" univ "/>
+            <entry name=" universitäre " value=" univ "/>
+            <entry name=" universitäres " value=" univ "/>
+            <entry name=" universitären " value=" univ "/>
+            <entry name=" universitärem " value=" univ "/>
+            <entry name=" universitärer " value=" univ "/>
+            <entry name=" untersuchung " value=" unters "/>
+            <entry name=" untersuchungen " value=" unters "/>
+            <entry name=" untersucht " value=" unters "/>
+            <entry name=" untersuchte " value=" unters "/>
+            <entry name=" untersuchter " value=" unters "/>
+            <entry name=" untersuchtes " value=" unters "/>
+            <entry name=" untersuchtem " value=" unters "/>
+            <entry name=" untersuchten " value=" unters "/>
+            <entry name=" unveröffentlicht " value=" unveröff "/>
+            <entry name=" unveröffentlichte " value=" unveröff "/>
+            <entry name=" unveröffentlichter " value=" unveröff "/>
+            <entry name=" unveröffentlichtes " value=" unveröff "/>
+            <entry name=" unveröffentlichten " value=" unveröff "/>
+            <entry name=" unveröffentlichtem " value=" unveröff "/>
+            <entry name=" verändert " value=" veränd "/>
+            <entry name=" veränderte " value=" veränd "/>
+            <entry name=" veränderter " value=" veränd "/>
+            <entry name=" verändertes " value=" veränd "/>
+            <entry name=" veränderten " value=" veränd "/>
+            <entry name=" verändertem " value=" veränd "/>
+            <entry name=" veranstaltung " value=" veranst "/>
+            <entry name=" veranstaltungen " value=" veranst "/>
+            <entry name=" verantwortlich " value=" verantw "/>
+            <entry name=" verantwortliche " value=" verantw "/>
+            <entry name=" verantwortlicher " value=" verantw "/>
+            <entry name=" verantwortliches " value=" verantw "/>
+            <entry name=" verantwortlichen " value=" verantw "/>
+            <entry name=" verantwortlichem " value=" verantw "/>
+            <entry name=" verbessert " value=" verb "/>
+            <entry name=" verbesserte " value=" verb "/>
+            <entry name=" verbesserter " value=" verb "/>
+            <entry name=" verbessertes " value=" verb "/>
+            <entry name=" verbesserten " value=" verb "/>
+            <entry name=" verbessertem " value=" verb "/>
+            <entry name=" verfasser " value=" verf "/>
+            <entry name=" verlag " value=" verl "/>
+            <entry name=" vergleiche " value=" vgl "/>
+            <entry name=" vergleichend " value=" vgl "/>
+            <entry name=" vergleich " value=" vgl "/>
+            <entry name=" vergleichs " value=" vgl "/>
+            <entry name=" vergleichende " value=" vgl "/>
+            <entry name=" vergleichender " value=" vgl "/>
+            <entry name=" vergleichendes " value=" vgl "/>
+            <entry name=" vergleichenden " value=" vgl "/>
+            <entry name=" vergleichendem " value=" vgl "/>
+            <entry name=" verlag " value=" verl "/>
+            <entry name=" vermehrte " value=" verm "/>
+            <entry name=" vermehrter " value=" verm "/>
+            <entry name=" vermehrtes " value=" verm "/>
+            <entry name=" vermehrten " value=" verm "/>
+            <entry name=" vermehrtem " value=" verm "/>
+            <entry name=" versehen " value=" vers "/>
+            <entry name=" versehene " value=" vers "/>
+            <entry name=" versehener " value=" vers "/>
+            <entry name=" versehenes " value=" vers "/>
+            <entry name=" versehenen " value=" vers "/>
+            <entry name=" versehenem " value=" vers "/>
+            <entry name=" vervollständigt " value=" vervollst "/>
+            <entry name=" vervollständigte " value=" vervollst "/>
+            <entry name=" vervollständigter " value=" vervollst "/>
+            <entry name=" vervollständigtes " value=" vervollst "/>
+            <entry name=" vervollständigten " value=" vervollst "/>
+            <entry name=" vervollständigtem " value=" vervollst "/>
+            <entry name=" verzeichnis " value=" verz "/>
+            <entry name=" verzeichnisse " value=" verz "/>
+            <entry name=" verzeichnisses " value=" verz "/>
+            <entry name=" verzeichnissen " value=" verz "/>
+            <entry name=" vielmehr " value=" vielm "/>
+            <entry name=" vollständig " value=" vollst "/>
+            <entry name=" vollständige " value=" vollst "/>
+            <entry name=" vollständiges " value=" vollst "/>
+            <entry name=" vollständiger " value=" vollst "/>
+            <entry name=" vollständigen " value=" vollst "/>
+            <entry name=" vollständigem " value=" vollst "/>
+            <entry name=" volume " value=" vol "/>
+            <entry name=" vor christus " value=" vchr "/>
+            <entry name=" vormalig " value=" vorm "/>
+            <entry name=" vormalige " value=" vorm "/>
+            <entry name=" vormaliger " value=" vorm "/>
+            <entry name=" vormaliges " value=" vorm "/>
+            <entry name=" vormaligen " value=" vorm "/>
+            <entry name=" vormaligem " value=" vorm "/>
+            <entry name=" vormals " value=" vorm "/>
+            <entry name=" vorrede " value=" vorr "/>
+            <entry name=" vorredner " value=" vorr "/>
+            <entry name=" vorrednerin " value=" vorr "/>
+            <entry name=" vorwort " value=" vorw "/>
+            <entry name=" wirklich " value=" wirkl "/>
+            <entry name=" wirkliche " value=" wirkl "/>
+            <entry name=" wirklicher " value=" wirkl "/>
+            <entry name=" wirkliches " value=" wirkl "/>
+            <entry name=" wirklichen " value=" wirkl "/>
+            <entry name=" wirklichem " value=" wirkl "/>
+            <entry name=" wirtschaftlich " value=" wirtsch "/>
+            <entry name=" wirtschaftliche " value=" wirtsch "/>
+            <entry name=" wirtschaftliches " value=" wirtsch "/>
+            <entry name=" wirtschaftlicher " value=" wirtsch "/>
+            <entry name=" wirtschaftlichen " value=" wirtsch "/>
+            <entry name=" wirtschaftlichem " value=" wirtsch "/>
+            <entry name=" wirtschaftl. " value=" wirtsch "/>
+            <entry name=" wissensch. " value=" wiss "/>
+            <entry name=" wissenschaftliche " value=" wiss "/>
+            <entry name=" wissenschaftlichen " value=" wiss "/>
+            <entry name=" wissenschaftliches " value=" wiss "/>
+            <entry name=" wissenschaftlicher " value=" wiss "/>
+            <entry name=" wissenschaftlichem " value=" wiss "/>
+            <entry name=" zahlreich " value=" zahlr "/>
+            <entry name=" zahlreiche " value=" zahlr "/>
+            <entry name=" zahlreicher " value=" zahlr "/>
+            <entry name=" zahlreichen " value=" zahlr "/>
+            <entry name=" zahlreiches " value=" zahlr "/>
+            <entry name=" zahlreichem " value=" zahlr "/>
+            <entry name=" zeichnung " value=" zeichn "/>
+            <entry name=" zeichnungen " value=" zeichn "/>
+            <entry name=" zeitschrift " value=" zeitschr "/>
+            <entry name=" zeitschriften " value=" zeitschr "/>
+            <entry name=" zugleich " value=" zugl "/>
+            <entry name=" zusätzlich " value=" zusätzl "/>
+            <entry name=" zusätzliche " value=" zusätzl "/>
+            <entry name=" zusätzlicher " value=" zusätzl "/>
+            <entry name=" zusätzliches " value=" zusätzl "/>
+            <entry name=" zusätzlichen " value=" zusätzl "/>
+            <entry name=" zusätzlichem " value=" zusätzl "/>
+        </map>
+
         <map name="diac">
             <entry name="ä" value="ae"/>
             <entry name="ü" value="ue"/>
@@ -583,16 +2021,143 @@
             <entry name="à" value="a"/>
             <entry name="è" value="e"/>
             <entry name="â" value="a"/>
+            <entry name="ā" value="a"/>
+            <entry name="ı" value="i"/>
             <entry name="ê" value="e"/>
             <entry name="å" value="a"/>
+            <entry name="ø" value="oe"/>
             <entry name="æ" value="ae"/>
             <entry name="ç" value="c"/>
             <entry name="œ" value="oe"/>
             <entry name="ñ" value="n"/>
             <entry name="š" value="s"/>
-            <entry name="&amp;" value="u"/>
-            <entry name=" und " value="u"/>
-            <entry name=" + " value="u"/>
+        </map>
+        <map name="noiseTitles">
+            <entry name="Konzerte"/>
+            <entry name="Werke"/>
+            <entry name="Sonaten"/>
+            <entry name="Sinfonien"/>
+            <entry name="Lieder"/>
+            <entry name="Quartette"/>
+            <entry name="Rezension von"/>
+            <entry name="Werke / Ausw."/>
+            <entry name="Trios"/>
+            <entry name="Messen"/>
+            <entry name="Werke, Org"/>
+            <entry name="Quintette"/>
+            <entry name="Verfassung"/>
+            <entry name="Kantaten"/>
+            <entry name="Lieder / Ausw."/>
+            <entry name="Works"/>
+            <entry name="Werke, Kl / Ausw."/>
+            <entry name="Suiten"/>
+            <entry name="Stücke"/>
+            <entry name="Serenaden"/>
+            <entry name="Poems"/>
+            <entry name="poezjewybrane"/>
+            <entry name="Werke, Orch"/>
+            <entry name="Ouvertüren"/>
+            <entry name="Motetten"/>
+            <entry name="Duos"/>
+            <entry name="Divertimenti"/>
+            <entry name="Präludien"/>
+            <entry name="Walzer"/>
+            <entry name="Nocturnes"/>
+            <entry name="Requiem"/>
+            <entry name="Musik für Klavier"/>
+            <entry name="Sonatinen"/>
+            <entry name="Selections"/>
+            <entry name="Etüden"/>
+            <entry name="Sinfonien / Ausw."/>
+            <entry name="Sammlung"/>
+            <entry name="Polonaisen"/>
+            <entry name="Concertinos"/>
+            <entry name="Essays"/>
+            <entry name="Briefe"/>
+            <entry name="[Kein Hauptsachtitel erfasst]"/>
+            <entry name="Topographische Karte"/>
+            <entry name="Brief"/>
+            <entry name="Gesammelte Werke"/>
+            <entry name="Sämtliche Werke"/>
+            <entry name="Gedichte"/>
+            <entry name="Korrespondenz"/>
+            <entry name="Ausgewählte Werke"/>
+            <entry name="Editorial"/>
+            <entry name="[ohne Titel]"/>
+            <entry name="Gesammelte Schriften"/>
+            <entry name="Erzählungen"/>
+            <entry name="Traktat"/>
+            <entry name="Neue Ausgabe sämtlicher Werke"/>
+            <entry name="Briefe"/>
+            <entry name="Gesamtausgabe"/>
+            <entry name="Letters to the Editor"/>
+            <entry name="Märchen"/>
+            <entry name="Speeches"/>
+            <entry name="Cantatas"/>
+            <entry name="Choral music"/>
+            <entry name="Constitution"/>
+            <entry name="Chamber music"/>
+            <entry name="Essays"/>
+            <entry name="Operas"/>
+            <entry name="Annual report"/>
+            <entry name="Organ music"/>
+            <entry name="Vocal music"/>
+            <entry name="Plays"/>
+            <entry name="Orchestra music"/>
+            <entry name="Correspondence"/>
+            <entry name="Instrumental music"/>
+            <entry name="Short stories"/>
+            <entry name="Piano music"/>
+            <entry name="Treaties etc"/>
+            <entry name="Songs"/>
+            <entry name="Laws etc"/>
+            <entry name="Works"/>
+            <entry name="Selections"/>
+            <entry name="Selected poems"/>
+            <entry name="Report."/>
+            <entry name="Newsletter"/>
+            <entry name="Collected poems"/>
+            <entry name="Annual report ..."/>
+            <entry name="Theologische Sammelhandschriften"/>
+            <entry name="Fragebogen"/>
+            <entry name="Poezje wybrane"/>
+            <entry name="Public general acts"/>
+            <entry name="Proceedings"/>
+            <entry name="Tax act"/>
+            <entry name="Impost Act"/>
+            <entry name="Stamp act"/>
+            <entry name="Proclamations"/>
+            <entry name="Staatsvertrag"/>
+            <entry name="Vertrag"/>
+            <entry name="Laws, Statutes, etc"/>
+        </map>
+        <map name="noiseCreatorRel">
+            <entry name="pbl"/>
+            <entry name="prn"/>
+            <entry name="mfp"/>
+            <entry name="pma"/>
+        </map>
+        <map name="noiseRemainderTitle">
+            <entry name="Roman"/>
+            <entry name="roman"/>
+            <entry name="Kriminalroman"/>
+            <entry name="Erzählungen"/>
+            <entry name="Erzählung"/>
+            <entry name="Thriller"/>
+            <entry name="Novelle"/>
+            <entry name="Gedichte"/>
+            <entry name="a novel"/>
+            <entry name="an introduction"/>
+            <entry name="poems"/>
+            <entry name="a report"/>
+            <entry name="a biography"/>
+            <entry name="a novel."/>
+            <entry name="a play"/>
+            <entry name="a history"/>
+            <entry name="an anthology"/>
+            <entry name="an autobiography"/>
+            <entry name="stories"/>
+            <entry name="a memoir"/>
         </map>
     </maps>
 </metamorph>

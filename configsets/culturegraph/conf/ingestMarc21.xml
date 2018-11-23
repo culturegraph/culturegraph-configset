@@ -7,7 +7,6 @@
             <constant value="bib"/>
         </data>
 
-		<data name="status" source="leader.status"/>
 
         <!--
         GVI Identifier Schema
@@ -136,11 +135,11 @@
         </data>
 
         <combine name="@mat" value="continuing resource">
-            <data source="leader.type">
+            <!--      <data source="leader.type">
                 <whitelist>
                     <entry name="a"/>
                 </whitelist>
-            </data>
+            </data> -->
             <data source="leader.bibliographicLevel">
                 <whitelist>
                     <entry name="b"/>
@@ -152,10 +151,7 @@
 
         <data name="material" source="@mat"/>
 
-        <!--
-        Kann je nach Publikationstyp unterschiedliche bedeutung haben
-        Vgl. http://www.loc.gov/marc/bibliographic/bd008.html
-        -->
+        <!-- kann je nach Publikationstyp unterschiedliches bedeuten vgl. http://www.loc.gov/marc/bibliographic/bd008.html-->
         <data name="form" source="008">
             <substring start="23" end="24"/>
         </data>
@@ -324,16 +320,32 @@
             </postprocess>
         </combine>
 
-
         <combine name="uniformTitle" value="${title}" flushWith="record">
             <data name="title" source="130??.a|240??.a|730??.a|700??.t"/>
+        </combine>
+
+        <!--<combine name="uniformTitle130-700t" value="${title}" flushWith="record">
+            <data name="title" source="130??.a|700??.t"/>
             <postprocess>
                 <setreplace map="diac"/>
             </postprocess>
         </combine>
+		
+		<combine name="uniformTitle240-730" value="${a}${k}${m}${n}${o}${r}" flushWith="record">
+             <data name="a" source="240??.a|730??.a"/>
+			<data name="h" source="240??.h|730??.h"/>
+			<data name="k" source="240??.k|730??.k"/>
+			<data name="m" source="240??.m|730??.m"/>
+			<data name="n" source="240??.n|730??.n"/>
+			<data name="o" source="240??.o|730??.o"/>
+			<data name="r" source="240??.r|730??.r"/>
+            <postprocess>
+                <setreplace map="diac"/>
+            </postprocess>
+        </combine>  -->
 
 
-        <combine name="varyingFormMainTitle" value="${title}" flushWith="record">
+        <combine name="varyingFormMainTitle" value="${title}" flushWith="246??.a">
             <data name="title" source="246??.a"/>
             <postprocess>
                 <setreplace map="diac"/>
@@ -394,52 +406,19 @@
             <data name="ref" source="600??.0|610??.0|611??.0|630??.0|648??.0|650??.0|651??.0|655??.0">
                 <regexp match="^\(DE-588.?\)((.*))" format="${1}"/>
             </data>
-            <!-- MARC21 Datafield Tag -->
-            <combine name="tag" value="${}">
-                <data source="600??|610??|611??|630??|648??|650??|651??|655??">
-                    <switch-name-value/>
-                    <substring start="0" end="3"/>
-                </data>
-            </combine>
         </entity>
 
         <data name="udc" source="080??.a"/>
-
-        <!--
-        DNB Sachgruppen
-        Vgl: https://wiki.dnb.de/pages/viewpage.action?title=MARC-Konkordanzen&spaceKey=KATALOGSYSTEM, S.77f
-        -->
-        <entity name="sachgruppe" flushWith="082??|083??" reset="true">
-            <if>
-                <data source="082??.2">
-                    <whitelist>
-                        <entry name="22sdnb"/>
-                        <entry name="23sdnb"/>
-                    </whitelist>
-                </data>
-            </if>
-            <data name="name" source="082??.a|083??.a"/>
-            <data name="ref" source="082??.2|083??.2"/>
+        <!-- DNB Sachgruppe ist in 082.a, 083.a, 084.a wenn jeweils in $2 sdnb, 22sdnb oder 23sdnb steht und bei 084 nicht DE-600 in $q steht -->
+        <entity name="ddc" flushWith="082??|083??|084??|085??" reset="true">
+            <data name="name" source="082??.a|083??.a|084??.a|085??.a"/>
+            <data name="ref" source="082??.2|083??.2|084??.2|085??.2"/>
+            <data name="source" source="082??.q|083??.q|084??.q|085??.q"/>
         </entity>
 
-        <entity name="sachgruppe" flushWith="084??" reset="true">
-            <if>
-                <data name="ref" source="084??.2">
-                    <whitelist>
-                        <entry name="sdnb"/>
-                    </whitelist>
-                </data>
-            </if>
-            <if>
-                <data source="084??.q">
-                    <regexp match="^(?!DE-600).*$"/>
-                </data>
-            </if>
-            <data name="name" source="084??.a"/>
-            <data name="source" source="084??.q"/>
-        </entity>
+        <!--<data name="ddc" source="082??.a|083??.a|085??.a"/>
 
-        <data name="ddc" source="082??.a|083??.a|085??.b"/>
+   
 
         <combine name="${type}" value="${value}" reset="true" sameEntity="true">
             <data name="value" source="084??.a"/>
@@ -447,49 +426,49 @@
                 <case to="lower"/>
                 <trim/>
                 <whitelist>
-                    <entry name="asb"/>
-                    <entry name="bkl"/>
-                    <entry name="ddc"/>
-                    <entry name="dopaed"/>
-                    <entry name="ghbs"/>
-                    <entry name="ifzs"/>
-                    <entry name="kab"/>
-                    <entry name="kktb"/>
-                    <entry name="lcc"/>
-                    <entry name="methepp"/>
-                    <entry name="msc"/>
-                    <entry name="njb"/>
-                    <entry name="nwbib"/>
-                    <entry name="rpb"/>
-                    <entry name="rvk"/>
-                    <entry name="sbb"/>
-                    <entry name="sfb"/>
-                    <entry name="ssd"/>
-                    <entry name="sswd"/>
-                    <entry name="stub"/>
                     <entry name="udc"/>
+                    <entry name="ddc"/>
+                    <entry name="lcc"/>
+                    <entry name="sswd"/>
+                    <entry name="methepp"/>
+                    <entry name="bkl"/>
+                    <entry name="rvk"/>
+                    <entry name="ghbs"/>
+                    <entry name="njb"/>
+                    <entry name="kktb"/>
+                    <entry name="rpb"/>
+                    <entry name="msc"/>
+                    <entry name="nwbib"/>
+                    <entry name="asb"/>
+                    <entry name="ssd"/>
+                    <entry name="sfb"/>
+                    <entry name="kab"/>
+                    <entry name="stub"/>
+                    <entry name="dopaed"/>
+                    <entry name="ifzs"/>
+                    <entry name="sbb"/>
                 </whitelist>
             </data>
-        </combine>
+        </combine>-->
     </rules>
 
     <maps>
         <map name="isilMap">
             <entry name="DE-101" value="dnb"/>
-            <entry name="DE-599" value="eki"/>
             <entry name="DE-600" value="zdb"/>
+            <entry name="Uk" value="bnb"/>
+            <entry name="ItFiC" value="cll"/>
+            <entry name="FrPBN" value="bnf"/>
+            <entry name="OCoLC" value="oclc"/>
+            <entry name="DE-599" value="eki"/>
             <!-- Falsch aufgeführte EKI in hbz Daten -->
             <entry name="DE-605" value="eki"/>
-            <entry name="FrPBN" value="bnf"/>
-            <entry name="ItFiC" value="cll"/>
-            <entry name="OCoLC" value="oclc"/>
-            <entry name="Uk" value="bnb"/>
             <entry name="XXXxUND" value="eki!"/>
         </map>
         <map name="doiMap" default="undefDoi">
             <entry name="doi" value="doi"/>
-            <entry name="handle" value="handle"/>
             <entry name="urn" value="urn"/>
+            <entry name="handle" value="handle"/>
         </map>
         <map name="diac">
             <entry name="ä" value="ae"/>
@@ -513,6 +492,7 @@
             <entry name="œ" value="oe"/>
             <entry name="ñ" value="n"/>
             <entry name="š" value="s"/>
+
         </map>
     </maps>
 </metamorph>
