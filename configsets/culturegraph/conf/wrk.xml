@@ -1,6 +1,5 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<metamorph xmlns="http://www.culturegraph.org/metamorph" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1">
+<?xml version="1.0" encoding="UTF-8"?>
+<metamorph xmlns="http://www.culturegraph.org/metamorph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.culturegraph.org/metamorph metamorph.xsd" entityMarker="." version="1">
     <meta>
         <name>WRK Algorithmus</name>
     </meta>
@@ -27,7 +26,7 @@
                 <constant value="X"/>
             </data>
         </choose>
-        <!--
+<!--		
 <combine name="testTitel" value="${title}" reset="false">
 <data source="material">
                 <not-equals string="continuing resource"/>
@@ -53,84 +52,78 @@
 			</combine>
 			</combine>
 -->
-        <combine name="isbnVolumeTitle" value="${isbn}-${volume}-${title}-${material}" reset="false">
+ <combine name="isbnVolumeTitle" value="${isbn}-${volume}-${title}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
             <data source="multipartLevel">
-                <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
-                </blacklist>
-            </data>
+                        <blacklist>
+                        <entry name="set"/>
+                        <entry name="part-dep"/>
+                        </blacklist>
+                        </data>
             <data source="mainTitle">
-                <blacklist map="noiseTitles"></blacklist>
-            </data>
+                        <blacklist map="noiseTitles"></blacklist>
+                   </data>   
             <none name="collection" value="none-fired">
-                <data source="titleInCollection"/>
-            </none>
+                        <data source="titleInCollection"/>
+                        </none>
             <none name="partOf" value="none-fired">
-                <data source="partOf"/>
-            </none>
+                        <data source="partOf"/>
+                        </none>
             <data name="volume" source="@volume"/>
             <data name="isbn" source="isbn13"/>
-            <data name="material" source="material"/>
+			<data name="material" source="material"/>
             <combine name="title" value="${title}" flushWith="record">
                 <data name="title" source="mainTitle">
-                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format="${2}"/>
-                </data>
+                <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format="${2}"/>
+                        </data>
                 <postprocess>
                     <case to="lower"/>
-                    <normalize-utf8/>
-                    <!--sorgt dafür, dass Umlaute nicht decomposed u und Punkte getrennt dargestellt werden, dann kann diac greifen -->
+                    <normalize-utf8/><!--sorgt dafür, dass Umlaute nicht decomposed u und Punkte getrennt dargestellt werden, dann kann diac greifen -->
                     <setreplace map="diac"/>
                     <setreplace map="numberLiteral"/>
                     <replace pattern="\sbis\s" with=""/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <!--Block kombinierende diakritische Zeichen-->
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <!--unicode start of string + string terminator-->
+                    <replace pattern="[\u0300-\u036F]" with=""/><!--Block kombinierende diakritische Zeichen-->
+                    <replace pattern="\u0098.*\u009C" with=""/><!--unicode start of string + string terminator-->
                     <replace pattern="\[.*\]" with=""/>
-                    <replace pattern="\u030E" with=""/>
-                    <!--Kombinierender doppeltbreiter übergesetzter senkrechter Strich-->
+                    <replace pattern="\u030E" with=""/><!--Kombinierender doppeltbreiter übergesetzter senkrechter Strich-->
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
-                    <replace pattern="\W" with=""/>
-                    <!--jedes Nicht-Wortzeichen entfernen, alles außer[a-zA-Z_0-9]-->
+                    <replace pattern="\W" with=""/><!--jedes Nicht-Wortzeichen entfernen, alles außer[a-zA-Z_0-9]-->
                     <substring end="50"/>
                 </postprocess>
             </combine>
         </combine>
 
 
-        <combine name="titleCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
+ <combine name="titleCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
-            <data source="multipartLevel">
-                <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
-                </blacklist>
-            </data>
-            <data source="mainTitle">
-                <blacklist map="noiseTitles"></blacklist>
-            </data>
-            <data source="creator.name">
-                <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
-            </data>
-            <none name="collection" value="none-fired">
-                <data source="titleInCollection"/>
-            </none>
-            <none name="partOf" value="none-fired">
-                <data source="partOf"/>
-            </none>
+                  <data source="multipartLevel">
+                        <blacklist>
+                          <entry name="set"/>
+                          <entry name="part-dep"/>
+                        </blacklist>
+                    </data>
+                  <data source="mainTitle">
+                        <blacklist map="noiseTitles"></blacklist>
+                    </data>
+                 <data source="creator.name">
+                        <blacklist>	<entry name="unbekannt"/> 
+                          <entry name="..."/>
+                        </blacklist>
+                    </data>
+                    <none name="collection" value="none-fired">
+                  <data source="titleInCollection"/>
+                    </none>
+                    <none name="partOf" value="none-fired">
+                  <data source="partOf"/>
+                    </none>
             <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
                 <combine name="title" value="${title}" flushWith="record">
-                    <data name="title" source="mainTitle">
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                  <data name="title" source="mainTitle">
+                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
                     </data>
                     <postprocess>
                         <case to="lower"/>
@@ -146,15 +139,15 @@
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
                     </postprocess>
-                </combine>
+                        </combine>
                 <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
-                    <data name="remainderOfTitle" source="remainderOfTitle">
-                        <blacklist map="noiseRemainderTitle"></blacklist>
+                  <data name="remainderOfTitle" source="remainderOfTitle">
+                      <blacklist map="noiseRemainderTitle"></blacklist>
                         <!--<regexp match="^((D|d)(er|ie|as|em|es) |(E|e)in(e | )|(E. |e. )|(D. |d. )|(T|t)he) (.*)$" format="${2}"/>-->
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                        <regexp match="^(.*)$" format=" ${1} "/>
-                    </data>
-                    <postprocess>
+                      <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                      <regexp match="^(.*)$" format=" ${1} "/>
+                      </data>
+                        <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="numberLiteral"/>
@@ -169,20 +162,20 @@
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
                     </postprocess>
-                </combine>
+                  </combine>
             </combine>
-            <data name="volume" source="@volume"/>
-            <data name="material" source="material"/>
-
+              <data name="volume" source="@volume"/>
+              <data name="material" source="material"/>
+            
             <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creator.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
+              <data source="creator.rel">
+                             <blacklist map="noiseCreatorRel"></blacklist>
+                           </data>
 
-                <data source="creator.name" name="creator">
-                    <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M}.,\-]*)( .*)?)?$" format="${1}${3}"/>
+              <data source="creator.name" name="creator">
+                <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M}.,\-]*)( .*)?)?$" format="${1}${3}"/>
                     <occurrence only="lessThan 4"/>
-                </data>
+                   </data>
                 <postprocess>
                     <buffer/>
                     <setreplace map="namer"/>
@@ -199,41 +192,39 @@
             </combine>
         </combine>
 
-        <combine name="titleCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="titleCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
-                <blacklist>
-                    <entry name="continuing resource"/>
-                    <entry name="musicNotated"/>
-                    <entry name="musicSound"/>
-                </blacklist>
+                     <blacklist>
+                             <entry name="continuing resource"/>
+                             <entry name="musicNotated"/>
+                             <entry name="musicSound"/>
+                       </blacklist>
             </data>
             <data source="multipartLevel">
-                <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
-                </blacklist>
-            </data>
+                     <blacklist>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
+                     </blacklist>
+             </data>
             <data source="mainTitle">
-                <blacklist map="noiseTitles"></blacklist>
-            </data>
+                     <blacklist map="noiseTitles"></blacklist>
+                   </data>
             <data source="creatorAddedEntry">
-                <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                     <blacklist><entry name="unbekannt"/>
+                             <entry name="..."/></blacklist>
             </data>
             <none name="collection" value="none-fired">
-                <data source="titleInCollection"/>
+                     <data source="titleInCollection"/>
             </none>
             <none name="partOf" value="none-fired">
-                <data source="partOf"/>
+                     <data source="partOf"/>
             </none>
-            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+        <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
                 <combine name="title" value="${title}" flushWith="record">
-                    <data name="title" source="mainTitle">
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                    </data>
-                    <postprocess>
+                     <data name="title" source="mainTitle">
+                       <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                     </data>
+                     <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="diac"/>
@@ -247,14 +238,14 @@
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
                     </postprocess>
-                </combine>
-                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
-                    <data name="remainderOfTitle" source="remainderOfTitle">
-                        <blacklist map="noiseRemainderTitle"></blacklist>
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                        <regexp match="^(.*)$" format=" ${1} "/>
-                    </data>
-                    <postprocess>
+          </combine>
+          <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
+                     <data name="remainderOfTitle" source="remainderOfTitle">
+                       <blacklist map="noiseRemainderTitle"></blacklist>
+                       <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                       <regexp match="^(.*)$" format=" ${1} "/>
+                     </data>
+                     <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="numberLiteral"/>
@@ -269,44 +260,44 @@
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
                     </postprocess>
-                </combine>
             </combine>
-            <data name="volume" source="@volume"/>
-            <data name="material" source="material"/>
-            <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorAddedEntry.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
-                <data source="creatorAddedEntry.name" name="creator">
-                    <regexp match="^([\p{L}\p{M}\-\`\´\'\n]*)(, ([\p{L}\p{M},.-]*)( .*)?)?$" format="${1}${3}"/>
-                    <occurrence only="lessThan 4"/>
-                </data>
-                <postprocess>
-                    <buffer/>
-                    <setreplace map="namer"/>
-                    <case to="lower"/>
-                    <normalize-utf8/>
-                    <setreplace map="diac"/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <replace pattern="\[.*\]" with=""/>
-                    <replace pattern="\u030E" with=""/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
-                    <replace pattern="\W" with=""/>
-                </postprocess>
+          </combine>
+                     <data name="volume" source="@volume"/>
+                     <data name="material" source="material"/>
+           <combine name="creator" value="${creator}" sameEntity="true">
+                     <data source="creatorAddedEntry.rel">
+                                <blacklist map="noiseCreatorRel"></blacklist>
+                     </data>
+                     <data source="creatorAddedEntry.name" name="creator">
+                       <regexp match="^([\p{L}\p{M}\-\`\´\'\n]*)(, ([\p{L}\p{M},.-]*)( .*)?)?$" format="${1}${3}"/>
+                      <occurrence only="lessThan 4"/>
+                     </data>
+                     <postprocess>
+                        <buffer/>
+                        <setreplace map="namer"/>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="diac"/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                      </postprocess>
             </combine>
         </combine>
 
-        <combine name="uniformTitleCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="uniformTitleCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <blacklist>
-                    <entry name="continuing resource"/>
+                             <entry name="continuing resource"/>
                 </blacklist>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -320,42 +311,42 @@
             </data>
             <data source="creator.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/>
+                </blacklist>  
             </data>
 
             <combine name="title" value="${title}" flushWith="record">
                 <data name="title" source="uniformTitle">
-                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                  <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
                 </data>
                 <postprocess>
-                    <case to="lower"/>
-                    <normalize-utf8/>
-                    <setreplace map="diac"/>
-                    <setreplace map="numberLiteral"/>
-                    <replace pattern="\sbis\s" with=""/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <replace pattern="\[.*\]" with=""/>
-                    <replace pattern="\u030E" with=""/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
-                    <replace pattern="\W" with=""/>
-                    <substring end="80"/>
-                </postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="diac"/>
+                        <setreplace map="numberLiteral"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+                  </postprocess>
             </combine>
-            <data name="volume" source="@volume"/>
-            <data name="material" source="material"/>
+                <data name="volume" source="@volume"/>
+                <data name="material" source="material"/>
             <combine name="creator" value="${creator}" sameEntity="true">
                 <data source="creator.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
+                                <blacklist map="noiseCreatorRel"></blacklist>
+                             </data>
+             <combine name="creator" value="${name}">
+                <data source="creator.name" name="name">
+                  <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M},.\-]*)( .*)?)?$" format="${1}${3}"/>
+                  <occurrence only="lessThan 4"/>
                 </data>
-                <combine name="creator" value="${name}">
-                    <data source="creator.name" name="name">
-                        <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M},.\-]*)( .*)?)?$" format="${1}${3}"/>
-                        <occurrence only="lessThan 4"/>
-                    </data>
-                </combine>
+             </combine>
                 <postprocess>
                     <buffer/>
                     <setreplace map="namer"/>
@@ -372,24 +363,24 @@
             </combine>
         </combine>
 
-        <combine name="uniformTitleCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="uniformTitleCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <blacklist>
-                    <entry name="continuing resource"/>
-                    <entry name="musicNotated"/>
-                    <entry name="musicSound"/>
+                             <entry name="continuing resource"/>
+                             <entry name="musicNotated"/>
+                             <entry name="musicSound"/>
                 </blacklist>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
                 <data source="titleInCollection"/>
             </none>
-            <none name="partOf" value="none-fired">
+			<none name="partOf" value="none-fired">
                 <data source="partOf"/>
             </none>
             <data source="uniformTitle">
@@ -397,43 +388,42 @@
             </data>
             <data source="creatorAddedEntry.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/></blacklist>  
             </data>
 
-            <combine name="title" value="${title}" flushWith="record">
-                <data name="title" source="uniformTitle">
-                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                </data>
-                <postprocess>
-                    <case to="lower"/>
-                    <normalize-utf8/>
-                    <setreplace map="diac"/>
-                    <setreplace map="numberLiteral"/>
-                    <replace pattern="\sbis\s" with=""/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <replace pattern="\[.*\]" with=""/>
-                    <replace pattern="\u030E" with=""/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
-                    <replace pattern="\W" with=""/>
-                    <substring end="80"/>
-                </postprocess>
-            </combine>
+         <combine name="title" value="${title}" flushWith="record">
+            <data name="title" source="uniformTitle">
+              <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+            </data>
+            <postprocess>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="diac"/>
+                        <setreplace map="numberLiteral"/>
+                        <replace pattern="\sbis\s" with=""/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
+                        <substring end="80"/>
+             </postprocess>
+         </combine>
             <data name="volume" source="@volume"/>
             <data name="material" source="material"/>
-            <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorAddedEntry.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
-                <combine name="creator" value="${name}">
-                    <data source="creatorAddedEntry.name" name="name">
-                        <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M},.\-]*)( .*)?)?$" format="${1}${3}"/>
-                        <occurrence only="lessThan 4"/>
-                    </data>
-                </combine>
-                <postprocess>
+          <combine name="creator" value="${creator}" sameEntity="true">
+            <data source="creatorAddedEntry.rel">
+                <blacklist map="noiseCreatorRel"></blacklist>
+            </data>
+          <combine name="creator" value="${name}">
+            <data source="creatorAddedEntry.name" name="name">
+              <regexp match="^([\p{L}\p{M}\-\`\´\'\s]*)(, ([\p{L}\p{M},.\-]*)( .*)?)?$" format="${1}${3}"/>
+              <occurrence only="lessThan 4"/>
+            </data>
+          </combine>
+            <postprocess>
                     <buffer/>
                     <setreplace map="namer"/>
                     <case to="lower"/>
@@ -445,18 +435,18 @@
                     <replace pattern="\u030E" with=""/>
                     <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
                     <replace pattern="\W" with=""/>
-                </postprocess>
-            </combine>
+            </postprocess>
+          </combine>
         </combine>
 
-        <combine name="titleCorporateBodyCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="titleCorporateBodyCreator" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -470,16 +460,16 @@
             </data>
             <data source="creatorCorporateBody.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/>
+                </blacklist>  
             </data>
-            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
-                <combine name="title" value="${title}" flushWith="record">
-                    <data name="title" source="mainTitle">
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                    </data>
-                    <postprocess>
+          <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+               <combine name="title" value="${title}" flushWith="record"> 
+            <data name="title" source="mainTitle">
+              <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+            </data>
+              <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="diac"/>
@@ -492,15 +482,15 @@
                         <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
-                    </postprocess>
-                </combine>
-                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
-                    <data name="remainderOfTitle" source="remainderOfTitle">
-                        <blacklist map="noiseRemainderTitle"></blacklist>
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                        <regexp match="^(.*)$" format=" ${1} "/>
-                    </data>
-                    <postprocess>
+              </postprocess>
+            </combine>
+        <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record"> 
+            <data name="remainderOfTitle" source="remainderOfTitle">
+                <blacklist map="noiseRemainderTitle"></blacklist>
+                <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                <regexp match="^(.*)$" format=" ${1} "/>
+            </data>
+              <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="numberLiteral"/>
@@ -515,15 +505,15 @@
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
                     </postprocess>
-                </combine>
             </combine>
+          </combine>
             <data name="volume" source="@volume"/>
             <data name="material" source="material"/>
-            <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorCorporateBody.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
-                <data name="creator" source="creatorCorporateBody.name"/>
+          <combine name="creator" value="${creator}" sameEntity="true">
+            <data source="creatorCorporateBody.rel">
+                <blacklist map="noiseCreatorRel"></blacklist>
+            </data>
+            <data name="creator" source="creatorCorporateBody.name"/>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
@@ -539,18 +529,18 @@
             </combine>
         </combine>
 
-        <combine name="titleCorporateBodyCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="titleCorporateBodyCreatorAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <blacklist>
-                    <entry name="continuing resource"/>
-                    <entry name="musicNotated"/>
-                    <entry name="musicSound"/>
+                             <entry name="continuing resource"/>
+                             <entry name="musicNotated"/>
+                             <entry name="musicSound"/>
                 </blacklist>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -564,16 +554,16 @@
             </data>
             <data source="creatorCorporateBodyAddedEntry.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/>
+                </blacklist>  
             </data>
-            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
-                <combine name="title" value="${title}" flushWith="record">
-                    <data name="title" source="mainTitle">
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                    </data>
-                    <postprocess>
+       <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+          <combine name="title" value="${title}" flushWith="record"> 
+            <data name="title" source="mainTitle">
+              <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+            </data>
+                <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="numberLiteral"/>
@@ -586,15 +576,15 @@
                         <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
-                    </postprocess>
-                </combine>
-                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
-                    <data name="remainderOfTitle" source="remainderOfTitle">
-                        <blacklist map="noiseRemainderTitle"></blacklist>
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                        <regexp match="^(.*)$" format=" ${1} "/>
-                    </data>
-                    <postprocess>
+                </postprocess>
+          </combine>
+          <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record"> 
+            <data name="remainderOfTitle" source="remainderOfTitle">
+                <blacklist map="noiseRemainderTitle"></blacklist>
+                <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                <regexp match="^(.*)$" format=" ${1} "/>
+            </data>
+                <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="numberLiteral"/>
@@ -608,39 +598,39 @@
                         <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
-                    </postprocess>
-                </combine>
-            </combine>
+                </postprocess>
+          </combine>
+          </combine>
             <data name="volume" source="@volume"/>
             <data name="material" source="material"/>
-            <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorCorporateBodyAddedEntry.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
+          <combine name="creator" value="${creator}" sameEntity="true">
+            <data source="creatorCorporateBodyAddedEntry.rel">
+                <blacklist map="noiseCreatorRel"></blacklist>
+            </data>
                 <data name="creator" source="creatorCorporateBodyAddedEntry.name"/>
                 <postprocess>
-                    <case to="lower"/>
-                    <normalize-utf8/>
-                    <setreplace map="diac"/>
-                    <replace pattern="[\u0300-\u036F]" with=""/>
-                    <replace pattern="\u0098.*\u009C" with=""/>
-                    <replace pattern="\[.*\]" with=""/>
-                    <replace pattern="\u030E" with=""/>
-                    <setreplace map="numberLiteral"/>
-                    <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
-                    <replace pattern="\W" with=""/>
+                        <case to="lower"/>
+                        <normalize-utf8/>
+                        <setreplace map="diac"/>
+                        <replace pattern="[\u0300-\u036F]" with=""/>
+                        <replace pattern="\u0098.*\u009C" with=""/>
+                        <replace pattern="\[.*\]" with=""/>
+                        <replace pattern="\u030E" with=""/>
+                        <setreplace map="numberLiteral"/>
+                        <replace pattern="[\,\.:;\-\)\(\]\[\{\}!?/\\'&quot;]" with=""/>
+                        <replace pattern="\W" with=""/>
                 </postprocess>
             </combine>
         </combine>
 
-        <combine name="uniformTitleCreatorCorporateBody" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="uniformTitleCreatorCorporateBody" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -654,14 +644,14 @@
             </data>
             <data source="creatorCorporateBody.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/>
+                </blacklist>  
             </data>
 
-            <combine name="title" value="${title}" flushWith="record">
+          <combine name="title" value="${title}" flushWith="record">
                 <data name="title" source="uniformTitle">
-                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                  <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
                 </data>
                 <postprocess>
                     <case to="lower"/>
@@ -700,18 +690,18 @@
             </combine>
         </combine>
 
-        <combine name="uniformTitleCreatorCorporateBodyAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="uniformTitleCreatorCorporateBodyAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <blacklist>
-                    <entry name="continuing resource"/>
-                    <entry name="musicNotated"/>
-                    <entry name="musicSound"/>
+                             <entry name="continuing resource"/>
+                             <entry name="musicNotated"/>
+                             <entry name="musicSound"/>
                 </blacklist>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -725,13 +715,13 @@
             </data>
             <data source="creatorCorporateBodyAddedEntry.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                </blacklist>  
             </data>
 
-            <combine name="title" value="${title}" flushWith="record">
+         <combine name="title" value="${title}" flushWith="record">
                 <data name="title" source="uniformTitle">
-                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                  <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
                 </data>
                 <postprocess>
                     <case to="lower"/>
@@ -751,14 +741,14 @@
             <data name="volume" source="@volume"/>
             <data name="material" source="material"/>
             <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorCorporateBodyAddedEntry.rel">
-                    <blacklist>
-                        <entry name="pbl"/>
-                        <entry name="prn"/>
-                        <entry name="mfp"/>
-                        <entry name="pma"/>
-                    </blacklist>
-                </data>
+            <data source="creatorCorporateBodyAddedEntry.rel">
+                <blacklist>
+                             <entry name="pbl"/>
+                             <entry name="prn"/>
+                             <entry name="mfp"/>
+                             <entry name="pma"/>
+                </blacklist>
+            </data>
                 <data name="creator" source="creatorCorporateBodyAddedEntry.name"/>
                 <postprocess>
                     <case to="lower"/>
@@ -775,14 +765,14 @@
             </combine>
         </combine>
 
-        <combine name="titleCreatorMeeting" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="titleCreatorMeeting" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -796,16 +786,16 @@
             </data>
             <data source="creatorMeeting.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/>
+                </blacklist>  
             </data>
-            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
-                <combine name="title" value="${title}" flushWith="record">
-                    <data name="title" source="mainTitle">
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                    </data>
-                    <postprocess>
+      <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+         <combine name="title" value="${title}" flushWith="record"> 
+            <data name="title" source="mainTitle">
+                <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+            </data>
+                <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="diac"/>
@@ -818,15 +808,15 @@
                         <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
-                    </postprocess>
-                </combine>
-                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
-                    <data name="remainderOfTitle" source="remainderOfTitle">
-                        <blacklist map="noiseRemainderTitle"></blacklist>
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                        <regexp match="^(.*)$" format=" ${1} "/>
-                    </data>
-                    <postprocess>
+                </postprocess>
+          </combine>
+          <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record"> 
+            <data name="remainderOfTitle" source="remainderOfTitle">
+                <blacklist map="noiseRemainderTitle"></blacklist>
+                <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                <regexp match="^(.*)$" format=" ${1} "/>
+            </data>
+                <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="numberLiteral"/>
@@ -840,16 +830,16 @@
                         <replace pattern="[\,\.:;\-\)\(\]\[\{\}!/?/\\'&quot;]" with=""/>
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
-                    </postprocess>
-                </combine>
+                </postprocess>
+            </combine>
             </combine>
             <data name="volume" source="@volume"/>
             <data name="material" source="material"/>
-            <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorMeeting.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
-                <data name="creator" source="creatorMeeting.name"/>
+        <combine name="creator" value="${creator}" sameEntity="true">
+            <data source="creatorMeeting.rel">
+                <blacklist map="noiseCreatorRel"></blacklist>
+            </data>
+            <data name="creator" source="creatorMeeting.name"/>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
@@ -865,18 +855,18 @@
             </combine>
         </combine>
 
-        <combine name="titleCreatorMeetingAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="titleCreatorMeetingAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <blacklist>
-                    <entry name="continuing resource"/>
-                    <entry name="musicNotated"/>
-                    <entry name="musicSound"/>
+                             <entry name="continuing resource"/>
+                             <entry name="musicNotated"/>
+                             <entry name="musicSound"/>
                 </blacklist>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -890,16 +880,16 @@
             </data>
             <data source="creatorMeetingAddedEntry.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/>
+                </blacklist>  
             </data>
-            <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
-                <combine name="title" value="${title}" flushWith="record">
-                    <data name="title" source="mainTitle">
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                    </data>
-                    <postprocess>
+        <combine name="title" value="${title}${remainderOfTitle}" flushWith="record">
+                <combine name="title" value="${title}" flushWith="record"> 
+            <data name="title" source="mainTitle">
+                <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+            </data>
+                <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="diac"/>
@@ -913,14 +903,14 @@
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
                     </postprocess>
-                </combine>
-                <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record">
-                    <data name="remainderOfTitle" source="remainderOfTitle">
-                        <blacklist map="noiseRemainderTitle"></blacklist>
-                        <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                        <regexp match="^(.*)$" format=" ${1} "/>
-                    </data>
-                    <postprocess>
+          </combine>
+          <combine name="remainderOfTitle" value="${remainderOfTitle}" flushWith="record"> 
+            <data name="remainderOfTitle" source="remainderOfTitle">
+                <blacklist map="noiseRemainderTitle"></blacklist>
+                <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+                <regexp match="^(.*)$" format=" ${1} "/>
+            </data>
+                <postprocess>
                         <case to="lower"/>
                         <normalize-utf8/>
                         <setreplace map="numberLiteral"/>
@@ -935,15 +925,15 @@
                         <replace pattern="\W" with=""/>
                         <substring end="80"/>
                     </postprocess>
-                </combine>
+            </combine>
             </combine>
             <data name="volume" source="@volume"/>
             <data name="material" source="material"/>
             <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorMeetingAddedEntry.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
-                <data name="creator" source="creatorMeetingAddedEntry.name"/>
+            <data source="creatorMeetingAddedEntry.rel">
+                <blacklist map="noiseCreatorRel"></blacklist>
+             </data>
+             <data name="creator" source="creatorMeetingAddedEntry.name"/>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
@@ -959,14 +949,14 @@
             </combine>
         </combine>
 
-        <combine name="uniformTitleCreatorMeeting" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="uniformTitleCreatorMeeting" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <not-equals string="continuing resource"/>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -980,14 +970,14 @@
             </data>
             <data source="creatorMeeting.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/>
+                </blacklist>  
             </data>
-            <combine name="title" value="${title}" flushWith="record">
-                <data name="title" source="uniformTitle">
-                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                </data>
+       <combine name="title" value="${title}" flushWith="record">
+            <data name="title" source="uniformTitle">
+                  <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+            </data>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
@@ -1005,12 +995,12 @@
             </combine>
             <data name="volume" source="@volume"/>
             <data name="material" source="material"/>
-            <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorMeeting.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
-                <data name="creator" source="creatorMeeting.name"/>
-                <postprocess>
+        <combine name="creator" value="${creator}" sameEntity="true">
+            <data source="creatorMeeting.rel">
+                <blacklist map="noiseCreatorRel"></blacklist>
+            </data>
+            <data name="creator" source="creatorMeeting.name"/>
+                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
                     <setreplace map="diac"/>
@@ -1025,18 +1015,18 @@
             </combine>
         </combine>
 
-        <combine name="uniformTitleCreatorMeetingAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
+<combine name="uniformTitleCreatorMeetingAddedEntry" value="${title}-${creator}-${volume}-${material}" reset="false">
             <data source="material">
                 <blacklist>
-                    <entry name="continuing resource"/>
-                    <entry name="musicNotated"/>
-                    <entry name="musicSound"/>
+                             <entry name="continuing resource"/>
+                             <entry name="musicNotated"/>
+                             <entry name="musicSound"/>
                 </blacklist>
             </data>
             <data source="multipartLevel">
                 <blacklist>
-                    <entry name="set"/>
-                    <entry name="part-dep"/>
+                             <entry name="set"/>
+                             <entry name="part-dep"/>
                 </blacklist>
             </data>
             <none name="collection" value="none-fired">
@@ -1047,17 +1037,17 @@
             </none>
             <data source="uniformTitle">
                 <blacklist map="noiseTitles"></blacklist>
-            </data>
+                   </data>
             <data source="creatorMeetingAddedEntry.name">
                 <blacklist>
-                    <entry name="unbekannt"/>
-                    <entry name="..."/>
-                </blacklist>
+                             <entry name="unbekannt"/>
+                             <entry name="..."/>
+                </blacklist>  
             </data>
-            <combine name="title" value="${title}" flushWith="record">
-                <data name="title" source="uniformTitle">
-                    <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
-                </data>
+       <combine name="title" value="${title}" flushWith="record">
+            <data name="title" source="uniformTitle">
+                <regexp match="^(Ein |ein |EIN |Eine |eine |EINE |Der |der |DER |Die |die |DIE |Das |das |DAS |Des |des |DES |Dem |dem |DEM |e. |E. |D. |d. |The |the |THE |a |A |an |An |AN |La |la |LA |Le |le |LE |Les |les |LES |Un |un |UN |Une |une |UNE )*(.*)$" format=" ${2}"/>
+            </data>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
@@ -1072,14 +1062,14 @@
                     <replace pattern="\W" with=""/>
                     <substring end="50"/>
                 </postprocess>
-            </combine>
+       </combine>
             <data name="volume" source="@volume"/>
             <data name="material" source="material"/>
-            <combine name="creator" value="${creator}" sameEntity="true">
-                <data source="creatorMeetingAddedEntry.rel">
-                    <blacklist map="noiseCreatorRel"></blacklist>
-                </data>
-                <data name="creator" source="creatorMeetingAddedEntry.name"/>
+       <combine name="creator" value="${creator}" sameEntity="true">
+            <data source="creatorMeetingAddedEntry.rel">
+                <blacklist map="noiseCreatorRel"></blacklist>
+                              </data>
+            <data name="creator" source="creatorMeetingAddedEntry.name"/>
                 <postprocess>
                     <case to="lower"/>
                     <normalize-utf8/>
@@ -1145,10 +1135,10 @@
             <entry name=" + " value=" u "/>
             <entry name="&amp;" value=" u "/>
             <entry name=" and " value=" u "/>
-        </map>
-        <!--<filemap name="RAK_abkürz" files="$home/aen/vorndran/workspace-cg/cluster/ClusterSep18/maps/RAK_abkürz.txt" separator=";"/>-->
-
-        <map name="RAK_abkürz">
+            </map>
+<!--<filemap name="RAK_abkürz" files="$home/aen/vorndran/workspace-cg/cluster/ClusterSep18/maps/RAK_abkürz.txt" separator=";"/>-->
+        
+       <map name="RAK_abkürz">
             <entry name=" der " value=" "/>
             <entry name=" die " value=" "/>
             <entry name=" das " value=" "/>
@@ -1183,7 +1173,7 @@
             <entry name=" abhandlung " value=" abh "/>
             <entry name=" abhandlungen " value=" abh "/>
             <entry name=" absatz " value=" abs "/>
-            <entry name=" absatzes  " value=" abs "/>
+            <entry name=" absatzes " value=" abs "/>
             <entry name=" absätze " value=" abs "/>
             <entry name=" absätzen " value=" abs "/>
             <entry name=" abschnitt " value=" abschn "/>
@@ -1274,7 +1264,7 @@
             <entry name=" beiheftes " value=" beih "/>
             <entry name=" beilage " value=" beil "/>
             <entry name=" beilagen " value=" beil "/>
-            <entry name=" beispiel " value=" bsp "/>
+            <entry name=" beispiel " value=" bsp "/>
             <entry name=" beisp " value=" bsp "/>
             <entry name=" beispielen " value=" bsp "/>
             <entry name=" beitrag " value=" beitr "/>
@@ -1321,8 +1311,8 @@
             <entry name=" dargebrachter " value=" dargebr "/>
             <entry name=" dargestellt " value=" darst "/>
             <entry name=" dargest. " value=" darst "/>
-            <entry name=" darstellungen  " value=" darst "/>
-            <entry name=" darstellung  " value=" darst "/>
+            <entry name=" darstellungen  " value=" darst "/>
+            <entry name=" darstellung  " value=" darst "/>
             <entry name=" das heißt " value=" dh "/>
             <entry name=" dasselbe " value=" dass "/>
             <entry name=" datiert " value=" dat "/>
@@ -1592,8 +1582,8 @@
             <entry name=" international " value=" internat "/>
             <entry name=" internationalen " value=" internat "/>
             <entry name=" internationalem " value=" internat "/>
-            <entry name=" internationales " value=" internat "/>
-            <entry name=" internationale " value=" internat "/>
+            <entry name=" internationales " value=" internat "/>
+            <entry name=" internationale " value=" internat "/>
             <entry name=" introduction " value=" introd "/>
             <entry name=" jährlich " value=" jährl "/>
             <entry name=" jährliche " value=" jährl "/>
@@ -1605,7 +1595,7 @@
             <entry name=" jahrgangs " value=" jg "/>
             <entry name=" jahrhundert " value=" jh "/>
             <entry name=" jahrhunderts " value=" jh "/>
-            <entry name=" jahrh. " value=" jh "/>
+            <entry name=" jahrh. " value=" jh "/>
             <entry name=" juristisch " value=" jur "/>
             <entry name=" juristisch " value=" jur "/>
             <entry name=" juristisches " value=" jur "/>
@@ -2007,9 +1997,9 @@
             <entry name=" zusätzliches " value=" zusätzl "/>
             <entry name=" zusätzlichen " value=" zusätzl "/>
             <entry name=" zusätzlichem " value=" zusätzl "/>
-        </map>
-
-        <map name="diac">
+         </map>
+         
+         <map name="diac">
             <entry name="ä" value="ae"/>
             <entry name="ü" value="ue"/>
             <entry name="ö" value="oe"/>
@@ -2031,8 +2021,8 @@
             <entry name="œ" value="oe"/>
             <entry name="ñ" value="n"/>
             <entry name="š" value="s"/>
-        </map>
-        <map name="noiseTitles">
+            </map>
+         <map name="noiseTitles">
             <entry name="Konzerte"/>
             <entry name="Werke"/>
             <entry name="Sonaten"/>
@@ -2054,7 +2044,7 @@
             <entry name="Stücke"/>
             <entry name="Serenaden"/>
             <entry name="Poems"/>
-            <entry name="poezjewybrane"/>
+			<entry name="poezjewybrane"/>
             <entry name="Werke, Orch"/>
             <entry name="Ouvertüren"/>
             <entry name="Motetten"/>
@@ -2118,26 +2108,26 @@
             <entry name="Newsletter"/>
             <entry name="Collected poems"/>
             <entry name="Annual report ..."/>
-            <entry name="Theologische Sammelhandschriften"/>
-            <entry name="Fragebogen"/>
-            <entry name="Poezje wybrane"/>
-            <entry name="Public general acts"/>
-            <entry name="Proceedings"/>
-            <entry name="Tax act"/>
-            <entry name="Impost Act"/>
-            <entry name="Stamp act"/>
-            <entry name="Proclamations"/>
-            <entry name="Staatsvertrag"/>
-            <entry name="Vertrag"/>
-            <entry name="Laws, Statutes, etc"/>
-        </map>
-        <map name="noiseCreatorRel">
+			<entry name="Theologische Sammelhandschriften"/>
+			<entry name="Fragebogen"/>
+			<entry name="Poezje wybrane"/>
+			<entry name="Public general acts"/>
+			<entry name="Proceedings"/>
+			<entry name="Tax act"/>
+			<entry name="Impost Act"/>
+			<entry name="Stamp act"/>
+			<entry name="Proclamations"/>
+			<entry name="Staatsvertrag"/>
+			<entry name="Vertrag"/>
+			<entry name="Laws, Statutes, etc"/>
+         </map>
+         <map name="noiseCreatorRel">
             <entry name="pbl"/>
             <entry name="prn"/>
             <entry name="mfp"/>
             <entry name="pma"/>
-        </map>
-        <map name="noiseRemainderTitle">
+         </map>
+         <map name="noiseRemainderTitle">
             <entry name="Roman"/>
             <entry name="roman"/>
             <entry name="Kriminalroman"/>
