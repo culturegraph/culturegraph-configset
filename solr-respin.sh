@@ -89,7 +89,6 @@ echo "Adding libs to solrconfig.xml"
 # NOTE: We need to mask $ with \$ to please sed
 cat <<-EOF > snippet.txt
   <lib dir="\${solr.install.dir:../../../..}/dist/" regex="solr-dataimporthandler-.*\.jar" />
-  <lib dir="\${solr.install.dir:../../../..}/dist/" regex="solr-hashcode-transformer-.*\.jar" />
   <lib dir="\${solr.install.dir:../../../..}/dist/" regex="solr-metamorph-transformer-.*\.jar" />
   <lib dir="\${solr.install.dir:../../../..}/dist/" regex="solr-metamorph-entity-processor-.*\.jar" />
 EOF
