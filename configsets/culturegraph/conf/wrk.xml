@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE metamorph [ <!ENTITY include SYSTEM "include.xml"> ]>
 <metamorph xmlns="http://www.culturegraph.org/metamorph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.culturegraph.org/metamorph metamorph.xsd" entityMarker="." version="1">
     <meta>
         <name>WRK Algorithmus</name>
     </meta>
 
     <rules>
+        
+        &include;
+        
         <group>
             <data source="idn"/>
             <postprocess>
