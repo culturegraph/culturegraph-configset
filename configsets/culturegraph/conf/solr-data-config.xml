@@ -81,7 +81,7 @@
          -->
          <entity baseDir="${dataimporter.request.dataDir}"
                  dataSource="null"
-                 fileName=".+\..+(.gz)?$"
+                 fileName=".+\..+(\.gz)?$"
                  processor="FileListEntityProcessor"
                  recursive="true"
                  rootEntity="false"
