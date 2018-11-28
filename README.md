@@ -1,6 +1,6 @@
-# CultureGraph Config Set
+# Culturegraph Config Set
 
-- [CultureGraph Config Set](#culturegraph-config-set)
+- [Culturegraph Config Set](#culturegraph-config-set)
   * [Quickstart](#quickstart)
   * [Data Import](#data-import)
     + [Configure JDBC](#configure-jdbc)
