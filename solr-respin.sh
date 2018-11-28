@@ -89,8 +89,9 @@ echo "Adding libs to solrconfig.xml"
 # NOTE: We need to mask $ with \$ to please sed
 cat <<-EOF > snippet.txt
   <lib dir="\${solr.install.dir:../../../..}/dist/" regex="solr-dataimporthandler-.*\.jar" />
-  <lib dir="\${solr.install.dir:../../../..}/contrib/metamorph" regex="solr-metamorph-transformer-.*\.jar" />
-  <lib dir="\${solr.install.dir:../../../..}/contrib/metamorph" regex="solr-metamorph-entity-processor-.*\.jar" />
+  <lib dir="\${solr.install.dir:../../../..}/lib/metamorph" regex="solr-metamorph-transformer-.*\.jar" />
+  <lib dir="\${solr.install.dir:../../../..}/lib/metamorph" regex="solr-metamorph-entity-processor-.*\.jar" />
+  <lib dir="\${solr.install.dir:../../../..}/lib/mysql" regex="mysql-connector-java-.*\.jar" />
 EOF
 sed -i '/<!-- Data Directory/i <!-- ADDED LIBS -->' ${solrconfig}
 sed -i '/<!-- ADDED LIBS -->/r snippet.txt' ${solrconfig}
@@ -120,17 +121,18 @@ echo "Adding MySQL Connector ${MYSQL_CONNECTOR_VERSION}"
 repo="http://central.maven.org/maven2/mysql/mysql-connector-java"
 
 solr=$(realpath ${SOLR})
-wget -q -P ${solr}/server/lib ${repo}/${MYSQL_CONNECTOR_VERSION}/mysql-connector-java-${MYSQL_CONNECTOR_VERSION}.jar
+mkdir -p ${solr}/lib/mysql
+wget -q -P ${solr}/lib/mysql ${repo}/${MYSQL_CONNECTOR_VERSION}/mysql-connector-java-${MYSQL_CONNECTOR_VERSION}.jar
 [ ! $? ] && echo "MySQL Connector ${MYSQL_CONNECTOR_VERSION} not found!" && exit 1
 
 # Add third party add-ons for the data import handler (into: contrib/metamorph)
 echo "Adding third-party (data import handler add-ons) jars to contrib/metamorph"
 solr=$(realpath ${SOLR})
-mkdir -p ${solr}/contrib/metamorph
-wget -q -P ${solr}/contrib/metamorph https://github.com/culturegraph/solr-metamorph-transformer/releases/download/v0.2.0/solr-metamorph-transformer-0.2.0-fat.jar
+mkdir -p ${solr}/lib/metamorph
+wget -q -P ${solr}/lib/metamorph https://github.com/culturegraph/solr-metamorph-transformer/releases/download/v0.2.0/solr-metamorph-transformer-0.2.0-fat.jar
 [ ! $? ] && echo "solr-metamorph-transformer-0.2.0-fat.jar not found!" && exit 1
 
-wget -q -P ${solr}/contrib/metamorph https://github.com/culturegraph/solr-metamorph-entity-processor/releases/download/v0.4.0/solr-metamorph-entity-processor-0.4.0-fat.jar
+wget -q -P ${solr}/lib/metamorph https://github.com/culturegraph/solr-metamorph-entity-processor/releases/download/v0.4.0/solr-metamorph-entity-processor-0.4.0-fat.jar
 [ ! $? ] && echo "solr-metamorph-entity-processor-0.4.0-fat.jar not found!" && exit 1
 
 # Add metafacture to solr server (into: server/lib/ext/metafacture)
