@@ -30,7 +30,6 @@ echo "------------------------"
 
 if [! which realpath 2> /dev/null ]; then echo "Command 'realpath' not found" && exit 1; fi
 if [! which sed 2> /dev/null ]; then echo "Command 'sed' not found" && exit 1; fi
-if [! which jar 2> /dev/null ]; then echo "Command 'jar' not found" && exit 1; fi
 if [! which wget 2> /dev/null ]; then echo "Command 'wget' not found" && exit 1; fi
 if [! which unzip 2> /dev/null ]; then echo "Command 'unzip' not found" && exit 1; fi
 if [! which zip 2> /dev/null ]; then echo "Command 'zip' not found" && exit 1; fi
@@ -89,9 +88,13 @@ echo "Adding libs to solrconfig.xml"
 # NOTE: We need to mask $ with \$ to please sed
 cat <<-EOF > snippet.txt
   <lib dir="\${solr.install.dir:../../../..}/dist/" regex="solr-dataimporthandler-.*\.jar" />
-  <lib dir="\${solr.install.dir:../../../..}/lib/metamorph" regex="solr-metamorph-transformer-.*\.jar" />
-  <lib dir="\${solr.install.dir:../../../..}/lib/metamorph" regex="solr-metamorph-entity-processor-.*\.jar" />
+  <!-- MySQL -->
   <lib dir="\${solr.install.dir:../../../..}/lib/mysql" regex="mysql-connector-java-.*\.jar" />
+  <!-- Metafacture -->
+  <lib dir="\${solr.install.dir:../../../..}/lib/metafacture" regex="metafacture-.*\.jar" />
+  <!-- Data Import Handler Add-Ons -->
+  <lib dir="\${solr.install.dir:../../../..}/lib/dih" regex="solr-metamorph-transformer-.*\.jar" />
+  <lib dir="\${solr.install.dir:../../../..}/lib/dih" regex="solr-metamorph-entity-processor-.*\.jar" />
 EOF
 sed -i '/<!-- Data Directory/i <!-- ADDED LIBS -->' ${solrconfig}
 sed -i '/<!-- ADDED LIBS -->/r snippet.txt' ${solrconfig}
@@ -116,51 +119,35 @@ rm snippet.txt
 # Modify solr server
 #
 
-# Add MySQL Connector to solr server (into:lib)
+# Add MySQL Connector to solr server (into: lib/mysql)
 echo "Adding MySQL Connector ${MYSQL_CONNECTOR_VERSION}"
 repo="http://central.maven.org/maven2/mysql/mysql-connector-java"
 
-solr=$(realpath ${SOLR})
-mkdir -p ${solr}/lib/mysql
-wget -q -P ${solr}/lib/mysql ${repo}/${MYSQL_CONNECTOR_VERSION}/mysql-connector-java-${MYSQL_CONNECTOR_VERSION}.jar
+mkdir -p $(realpath ${SOLR})/lib/mysql
+wget -q -P $(realpath ${SOLR})/lib/mysql ${repo}/${MYSQL_CONNECTOR_VERSION}/mysql-connector-java-${MYSQL_CONNECTOR_VERSION}.jar
 [ ! $? ] && echo "MySQL Connector ${MYSQL_CONNECTOR_VERSION} not found!" && exit 1
 
-# Add third party add-ons for the data import handler (into: contrib/metamorph)
-echo "Adding third-party (data import handler add-ons) jars to contrib/metamorph"
-solr=$(realpath ${SOLR})
-mkdir -p ${solr}/lib/metamorph
-wget -q -P ${solr}/lib/metamorph https://github.com/culturegraph/solr-metamorph-transformer/releases/download/v0.2.0/solr-metamorph-transformer-0.2.0-fat.jar
+# Add third party add-ons for the data import handler (into: lib/dih)
+echo "Adding third-party jars (data import handler add-ons)"
+
+mkdir -p $(realpath ${SOLR})/lib/dih
+
+wget -q -P $(realpath ${SOLR})/lib/dih https://github.com/culturegraph/solr-metamorph-transformer/releases/download/v0.2.0/solr-metamorph-transformer-0.2.0-fat.jar
 [ ! $? ] && echo "solr-metamorph-transformer-0.2.0-fat.jar not found!" && exit 1
 
-wget -q -P ${solr}/lib/metamorph https://github.com/culturegraph/solr-metamorph-entity-processor/releases/download/v0.4.0/solr-metamorph-entity-processor-0.4.0-fat.jar
+wget -q -P $(realpath ${SOLR})/lib/dih https://github.com/culturegraph/solr-metamorph-entity-processor/releases/download/v0.4.0/solr-metamorph-entity-processor-0.4.0-fat.jar
 [ ! $? ] && echo "solr-metamorph-entity-processor-0.4.0-fat.jar not found!" && exit 1
 
-# Add metafacture to solr server (into: server/lib/ext/metafacture)
-echo "Adding third-party (metafacture) jars to solr server"
-lib=$(realpath ${SOLR}/server/lib/ext)
-mkdir -p ${lib}
+# Adding metafacture (into: lib/metafacture and WEB-INF/lib)
+echo "Adding third-party jars (metafacture)"
 
 repo="http://central.maven.org/maven2/org/metafacture"
 modules="metafacture-biblio metafacture-commons metafacture-flowcontrol metafacture-framework metafacture-io metafacture-mangling metamorph metamorph-api"
 for module in $modules; do
-  wget -q -P ${lib} ${repo}/${module}/${METAFACTURE_VERSION}/${module}-${METAFACTURE_VERSION}.jar
+  wget -q -P $(realpath ${SOLR})/lib/metafacture ${repo}/${module}/${METAFACTURE_VERSION}/${module}-${METAFACTURE_VERSION}.jar
 done
 
-# Add additional resources to solr server (into: server/resources)
-echo "Adding resources to solr server"
-res=${SOLR}/server/resources
-cd ${res}
-  jar xf ${lib}/metamorph-${METAFACTURE_VERSION}.jar morph-collectors.properties
-  jar xf ${lib}/metamorph-${METAFACTURE_VERSION}.jar morph-functions.properties
-  jar xf ${lib}/metamorph-${METAFACTURE_VERSION}.jar morph-maps.properties
-cd - > /dev/null
-
-# Add schemata to solr server (into: server/schemata)
-echo "Adding schemata to solr server"
-cd ${SOLR}/server
-jar xf ${lib}/metamorph-${METAFACTURE_VERSION}.jar schemata
-cd - > /dev/null
-
+cp $(realpath ${SOLR})/lib/metafacture/*.jar $(realpath ${SOLR})/server/solr-webapp/webapp/WEB-INF/lib
 
 #
 # Create new zip archive
