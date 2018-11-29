@@ -120,28 +120,38 @@ Install the following add-ons:
 * https://github.com/culturegraph/solr-morph-transformer
 * https://github.com/culturegraph/solr-metamorph-entity-processor
 
-Add libraries to `solrconfig.xml`
+Copy all [Metafacture Module](https://mvnrepository.com/artifact/org.metafacture) JARs into `SOLR_INSTANCE_DIR/lib` and into `SOLR_INSTANCE_DIR/server/solr-webapp/webapp/WEB-INF/lib`.
+
+Copy a appropriate version of [MySQL Connector/J](https://mvnrepository.com/artifact/mysql/mysql-connector-java) to `SOLR_INSTANCE_DIR/lib/mysql`.
+
+
+Add libraries to `solrconfig.xml`:
 
 ```
-<lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-morph-transformer-.*\.jar" />
-<lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-metamorph-entity-processor-.*\.jar" />
+  <!-- Data Import Handler -->
+  <lib dir="\${solr.install.dir:../../../..}/dist/" regex="solr-dataimporthandler-.*\.jar" />
+  <!-- MySQL -->
+  <lib dir="\${solr.install.dir:../../../..}/lib/mysql" regex="mysql-connector-java-.*\.jar" />
+  <!-- Metafacture -->
+  <lib dir="\${solr.install.dir:../../../..}/lib/metafacture" regex="metafacture-.*\.jar" />
+  <!-- Data Import Handler Add-Ons -->
+  <lib dir="\${solr.install.dir:../../../..}/lib/dih" regex="solr-metamorph-transformer-.*\.jar" />
+  <lib dir="\${solr.install.dir:../../../..}/lib/dih" regex="solr-metamorph-entity-processor-.*\.jar" />
 ```
-
-### Install MySQL Connector
-
-Place the required [MySQL Connector/J](https://mvnrepository.com/artifact/mysql/mysql-connector-java) JAR in the `solr/server/lib` directory.
 
 ## Automatic Installation
 
 The `solr-respin.sh` script modifies a Apache Solr release by doing the following:
 
 * Download Solr release
-* Add MySQL Connector
 * Add the culturegraph config set
-* Add the required add-ons (and dependencies)
+* Add MySQL Connector to `lib/mysql`
+* Add the metafacture modules to `lib/metafacture`
+  * Also copy content of `lib/metafacture` into `server/solr-webapp/webapp/WEB-INF/lib`
+* Add DIH add-ons to `lib/dih`
 * Modify the `sorlconfig.xml`
   * Add data import request handler
-  * Include libraries for the required add-ons
+  * Include `<lib ... />` statements for the added JARs
 
 
 Run it with:
