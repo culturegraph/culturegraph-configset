@@ -135,8 +135,8 @@ Add libraries to `solrconfig.xml`:
   <!-- Metafacture -->
   <lib dir="\${solr.install.dir:../../../..}/lib/metafacture" regex="metafacture-.*\.jar" />
   <!-- Data Import Handler Add-Ons -->
-  <lib dir="\${solr.install.dir:../../../..}/lib/dih" regex="solr-metamorph-transformer-.*\.jar" />
-  <lib dir="\${solr.install.dir:../../../..}/lib/dih" regex="solr-metamorph-entity-processor-.*\.jar" />
+  <lib dir="\${solr.install.dir:../../../..}/lib/dataimporthandler" regex="solr-metamorph-transformer-.*\.jar" />
+  <lib dir="\${solr.install.dir:../../../..}/lib/dataimporthandler" regex="solr-metamorph-entity-processor-.*\.jar" />
 ```
 
 ## Automatic Installation
@@ -148,7 +148,7 @@ The `solr-respin.sh` script modifies a Apache Solr release by doing the followin
 * Add MySQL Connector to `lib/mysql`
 * Add the metafacture modules to `lib/metafacture`
   * Also copy content of `lib/metafacture` into `server/solr-webapp/webapp/WEB-INF/lib`
-* Add DIH add-ons to `lib/dih`
+* Add DIH add-ons to `lib/dataimporthandler`
 * Modify the `sorlconfig.xml`
   * Add data import request handler
   * Include `<lib ... />` statements for the added JARs
