@@ -80,9 +80,9 @@ The database needs at least the following columns:
 
 | Column | Type | Description |
 | ------ | ---- | ----------- |
-| id | String | Record identifer. Format: ([ISIL](http://sigel.staatsbibliothek-berlin.de/vergabe/isil/))IDN . |
-| update_time | Timestamp | Insertion or update date for a record (UTC). |
-| full_record | String | A bibliographic record formatted as [MARC21](https://www.loc.gov/marc/96principl.html). |
+| id | CHAR(40) | Record identifer. Format: ([ISIL](http://sigel.staatsbibliothek-berlin.de/vergabe/isil/))IDN . |
+| update_time | TIMESTAMP | Insertion or update date for a record (UTC). |
+| full_record | TEXT | A bibliographic record formatted as [MARC21](https://www.loc.gov/marc/96principl.html). |
 
 ### Configure JDBC
 
